@@ -22,11 +22,12 @@ public class UserInfoServlet extends HttpServlet {
     }
  
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
- 
-        // Check User has logged on
+    	
+    	HttpSession session = request.getSession();
+    	
+    	// Check User has logged on
         UserAccount loginedUser = MyUtils.getLoginedUser(session);
  
         // Not logged in
@@ -37,19 +38,8 @@ public class UserInfoServlet extends HttpServlet {
         }
         // Store info to the request attribute before forwarding.
         request.setAttribute("user", loginedUser);
- 
-        // If the user has logged in, then forward to the page
-        // /WEB-INF/views/userInfoView.jsp
-        RequestDispatcher dispatcher //
-                = this.getServletContext().getRequestDispatcher("/WEB-INF/views/userInfoView.jsp");
-        dispatcher.forward(request, response);
- 
-    }
- 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doGet(request, response);
+        
+        // TO DO: continue to a query
     }
  
 }

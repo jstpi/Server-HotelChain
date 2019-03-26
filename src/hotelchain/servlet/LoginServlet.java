@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
  
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,6 +14,9 @@ import javax.servlet.http.HttpSession;
 import hotelchain.beans.UserAccount;
 import hotelchain.utils.DBUtils;
 import hotelchain.utils.MyUtils;
+import hotelchain.response.mod.LoginResponse;
+
+import com.google.gson.*;
  
 @WebServlet(urlPatterns = { "/login" })
 public class LoginServlet extends HttpServlet {
@@ -22,20 +24,6 @@ public class LoginServlet extends HttpServlet {
  
     public LoginServlet() {
         super();
-    }
- 
-    // Show Login page.
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
- 
-        // Forward to /WEB-INF/views/loginView.jsp
-        // (Users can not access directly into JSP pages placed in WEB-INF)
-        RequestDispatcher dispatcher //
-                = this.getServletContext().getRequestDispatcher("/WEB-INF/views/loginView.jsp");
- 
-        dispatcher.forward(request, response);
- 
     }
  
     // When the user enters userName & password, and click Submit.
@@ -71,21 +59,19 @@ public class LoginServlet extends HttpServlet {
                 errorString = e.getMessage();
             }
         }
-        // If error, forward to /WEB-INF/views/login.jsp
+        
         if (hasError) {
             user = new UserAccount();
             user.setUserName(userName);
             user.setPassword(password);
  
-            // Store information in request attribute, before forward.
-            request.setAttribute("errorString", errorString);
-            request.setAttribute("user", user);
- 
-            // Forward to /WEB-INF/views/login.jsp
-            RequestDispatcher dispatcher //
-                    = this.getServletContext().getRequestDispatcher("/WEB-INF/views/loginView.jsp");
- 
-            dispatcher.forward(request, response);
+            LoginResponse loginResponse = new LoginResponse(userName, password, false, errorString);
+            
+            response.setContentType("application/json");
+            String json = new Gson().toJson(loginResponse);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(json);
         }
         // If no error
         // Store user information in Session
@@ -103,8 +89,13 @@ public class LoginServlet extends HttpServlet {
                 MyUtils.deleteUserCookie(response);
             }
  
-            // Redirect to userInfo page.
-            response.sendRedirect(request.getContextPath() + "/userInfo");
+            LoginResponse loginResponse = new LoginResponse(userName, password, true, errorString);
+            
+            response.setContentType("application/json");
+            String json = new Gson().toJson(loginResponse);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(json);
         }
     }
  
