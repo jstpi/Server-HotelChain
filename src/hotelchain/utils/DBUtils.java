@@ -13,7 +13,7 @@ public class DBUtils {
     public static UserAccount findUser(Connection conn, 
             String email, String password) throws SQLException {
  
-        String sql = "Select a.email, a.password from customer a " //
+        String sql = "Set search_path='eHotel'; Select a.email, a.password from customer a " //
                 + " where a.email = ? and a.password= ?";
  
         //select password, email from customer where password='pwd456' and email='jer@stpierre.ca';
@@ -47,7 +47,6 @@ public class DBUtils {
             UserAccount user = new UserAccount();
             user.setUserName(userName);
             user.setPassword(password);
-            user.setGender(gender);
             return user;
         }
         return null;
