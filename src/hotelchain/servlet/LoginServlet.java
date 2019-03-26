@@ -31,8 +31,10 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+    	System.out.println("yo");
         String email = request.getParameter("email");
         String password = request.getParameter("pass");
+        System.out.println("yo2");
  
         UserAccount user = null;
         boolean hasError = false;

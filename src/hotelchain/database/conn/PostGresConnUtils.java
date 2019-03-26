@@ -10,7 +10,7 @@ public class PostGresConnUtils {
            throws ClassNotFoundException, SQLException {
   
        // Note: Change the connection parameters accordingly.
-       String hostName = "web0.site.uottawa.ca";
+       String hostName = "web0.eecs.uottawa.ca";
        String port = "15432";
        String userName = "flafl086";
        String password = "Cx5rrpap9r";
