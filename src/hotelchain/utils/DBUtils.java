@@ -11,19 +11,20 @@ import hotelchain.beans.UserAccount;
 public class DBUtils {
  
     public static UserAccount findUser(Connection conn, 
-            String userName, String password) throws SQLException {
+            String email, String password) throws SQLException {
  
-        String sql = "Select a.User_Name, a.Password, a.Gender from User_Account a " //
-                + " where a.User_Name = ? and a.password= ?";
+        String sql = "Select a.email, a.password from customer a " //
+                + " where a.email = ? and a.password= ?";
  
+        //select password, email from customer where password='pwd456' and email='jer@stpierre.ca';
         PreparedStatement pstm = conn.prepareStatement(sql);
-        pstm.setString(1, userName);
+        pstm.setString(1, email);
         pstm.setString(2, password);
         ResultSet rs = pstm.executeQuery();
  
         if (rs.next()) {
             UserAccount user = new UserAccount();
-            user.setUserName(userName);
+            user.setUserName(email);
             user.setPassword(password);
             return user;
         }

@@ -31,23 +31,21 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String userName = request.getParameter("userName");
-        String password = request.getParameter("password");
-        String rememberMeStr = request.getParameter("rememberMe");
-        boolean remember = "Y".equals(rememberMeStr);
+        String email = request.getParameter("email");
+        String password = request.getParameter("pass");
  
         UserAccount user = null;
         boolean hasError = false;
         String errorString = null;
  
-        if (userName == null || password == null || userName.length() == 0 || password.length() == 0) {
+        if (email == null || password == null || email.length() == 0 || password.length() == 0) {
             hasError = true;
             errorString = "Required username and password!";
         } else {
             Connection conn = MyUtils.getStoredConnection(request);
             try {
                 // Find the user in the DB.
-                user = DBUtils.findUser(conn, userName, password);
+                user = DBUtils.findUser(conn, email, password);
  
                 if (user == null) {
                     hasError = true;
@@ -62,10 +60,10 @@ public class LoginServlet extends HttpServlet {
         
         if (hasError) {
             user = new UserAccount();
-            user.setUserName(userName);
+            user.setUserName(email);
             user.setPassword(password);
  
-            LoginResponse loginResponse = new LoginResponse(userName, password, false, errorString);
+            LoginResponse loginResponse = new LoginResponse(email, password, false, errorString);
             
             response.setContentType("application/json");
             String json = new Gson().toJson(loginResponse);
@@ -80,16 +78,8 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             MyUtils.storeLoginedUser(session, user);
  
-            // If user checked "Remember me".
-            if (remember) {
-                MyUtils.storeUserCookie(response, user);
-            }
-            // Else delete cookie.
-            else {
-                MyUtils.deleteUserCookie(response);
-            }
  
-            LoginResponse loginResponse = new LoginResponse(userName, password, true, errorString);
+            LoginResponse loginResponse = new LoginResponse(email, password, true, errorString);
             
             response.setContentType("application/json");
             String json = new Gson().toJson(loginResponse);
