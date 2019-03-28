@@ -20,10 +20,11 @@ public class DBUtils {
         PreparedStatement pstm = conn.prepareStatement(sql);
         pstm.setString(1, email);
         pstm.setString(2, password);
+        System.out.println(pstm);
         ResultSet rs = pstm.executeQuery();
  
         if (rs.next()) {
-            UserAccount user = new UserAccount();
+            UserAccount user = new UserAccount(null, null, null);
             user.setUserName(email);
             user.setPassword(password);
             return user;
@@ -44,7 +45,7 @@ public class DBUtils {
         if (rs.next()) {
             String password = rs.getString("Password");
             String gender = rs.getString("Gender");
-            UserAccount user = new UserAccount();
+            UserAccount user = new UserAccount(null, null, null);
             user.setUserName(userName);
             user.setPassword(password);
             return user;

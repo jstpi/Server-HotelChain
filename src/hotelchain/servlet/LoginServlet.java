@@ -1,5 +1,6 @@
 package hotelchain.servlet;
  
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -31,23 +32,39 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-    	System.out.println("yo");
-        String email = request.getParameter("email");
-        String password = request.getParameter("pass");
-        System.out.println("yo2");
+    	System.out.println(request.toString());
+    	
+    	StringBuffer jb = new StringBuffer();
+    	String line = null;
+		  try {
+		    BufferedReader reader = request.getReader();
+		    while ((line = reader.readLine()) != null)
+		      jb.append(line);
+		  } catch (Exception e) { 
+			  e.printStackTrace();
+		  }	
+        
+		System.out.println(jb);
+		Gson g = new Gson();
+		UserAccount user = new UserAccount(null, null, null);
+		try{
+			user = g.fromJson(jb.toString(), UserAccount.class);
+		}
+		catch(JsonSyntaxException e) { 
+			e.printStackTrace();
+		}
  
-        UserAccount user = null;
         boolean hasError = false;
         String errorString = null;
  
-        if (email == null || password == null || email.length() == 0 || password.length() == 0) {
+        if (user.getEmail() == null || user.getPassword() == null || user.getEmail().length() == 0 || user.getPassword().length() == 0) {
             hasError = true;
             errorString = "Required username and password!";
         } else {
             Connection conn = MyUtils.getStoredConnection(request);
             try {
                 // Find the user in the DB.
-                user = DBUtils.findUser(conn, email, password);
+            	user = DBUtils.findUser(conn, user.getEmail(), user.getPassword());
  
                 if (user == null) {
                     hasError = true;
@@ -61,11 +78,8 @@ public class LoginServlet extends HttpServlet {
         }
         
         if (hasError) {
-            user = new UserAccount();
-            user.setUserName(email);
-            user.setPassword(password);
  
-            LoginResponse loginResponse = new LoginResponse(email, password, false, errorString);
+            LoginResponse loginResponse = new LoginResponse(user.getEmail(), user.getPassword(), false, errorString);
             
             response.setContentType("application/json");
             String json = new Gson().toJson(loginResponse);
@@ -81,7 +95,7 @@ public class LoginServlet extends HttpServlet {
             MyUtils.storeLoginedUser(session, user);
  
  
-            LoginResponse loginResponse = new LoginResponse(email, password, true, errorString);
+            LoginResponse loginResponse = new LoginResponse(user.getEmail(), user.getPassword(), true, errorString);
             
             response.setContentType("application/json");
             String json = new Gson().toJson(loginResponse);

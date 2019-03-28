@@ -2,13 +2,23 @@ package hotelchain.beans;
  
 public class UserAccount {
  
-    
+   private String type;
    private String email;
    private String password;
     
  
-   public UserAccount() {
-        
+   public UserAccount(String type, String email, String password) {
+        this.type = type;
+        this.email = email;
+        this.password = password;
+   }
+   
+   public String getType() {
+       return type;
+   }
+ 
+   public void setType(String type) {
+       this.type = type;
    }
     
    public String getEmail() {
@@ -18,7 +28,6 @@ public class UserAccount {
    public void setUserName(String email) {
        this.email = email;
    }
- 
  
    public String getPassword() {
        return password;
