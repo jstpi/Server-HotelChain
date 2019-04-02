@@ -11,10 +11,10 @@ public class UserAccount {
 
 	public UserAccount(String sin, String full_name, String address, String date_registration, String email,
 			String password) {
-		this.setSin(sin);
-		this.setFull_name(full_name);
-		this.setAddress(address);
-		this.setDate_registration(date_registration);
+		this.sin=sin;
+		this.full_name=full_name;
+		this.address=address;
+		this.date_registration=date_registration;
 		this.password = password;
 		this.email = email;
 	}
