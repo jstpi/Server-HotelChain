@@ -1,43 +1,70 @@
 package hotelchain.beans;
- 
+
 public class UserAccount {
- 
-   private String type;
-   private String email;
-   private String password;
-    
- 
-   public UserAccount(String type, String email, String password) {
-        this.type = type;
-        this.email = email;
-        this.password = password;
-   }
-   
-   public UserAccount() {
-  }
-   
-   public String getType() {
-       return type;
-   }
- 
-   public void setType(String type) {
-       this.type = type;
-   }
-    
-   public String getEmail() {
-       return email;
-   }
- 
-   public void setEmail(String email) {
-       this.email = email;
-   }
- 
-   public String getPassword() {
-       return password;
-   }
- 
-   public void setPassword(String password) {
-       this.password = password;
-   }
- 
+
+	private String sin;
+	private String full_name;
+	private String address;
+	private String date_registration;
+	private String password;
+	private String email;
+
+	public UserAccount(String sin, String full_name, String address, String date_registration, String email,
+			String password) {
+		this.setSin(sin);
+		this.setFull_name(full_name);
+		this.setAddress(address);
+		this.setDate_registration(date_registration);
+		this.password = password;
+		this.email = email;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setUserName(String email) {
+		this.email = email;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getFull_name() {
+		return full_name;
+	}
+
+	public void setFull_name(String full_name) {
+		this.full_name = full_name;
+	}
+
+	public String getSin() {
+		return sin;
+	}
+
+	public void setSin(String sin) {
+		this.sin = sin;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getDate_registration() {
+		return date_registration;
+	}
+
+	public void setDate_registration(String date_registration) {
+		this.date_registration = date_registration;
+	}
+
 }

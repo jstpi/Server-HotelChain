@@ -44,7 +44,7 @@ public class LoginServlet extends HttpServlet {
 		  }	
         
 		Gson g = new Gson();
-		UserAccount user = new UserAccount(null, null, null);
+		UserAccount user = new UserAccount(null, null, null, null, null, null);
 		try{
 			user = g.fromJson(jb.toString(), UserAccount.class);
 		}

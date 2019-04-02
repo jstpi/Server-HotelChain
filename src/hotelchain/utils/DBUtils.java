@@ -13,20 +13,31 @@ public class DBUtils {
     public static UserAccount findUser(Connection conn, 
             String email, String password) throws SQLException {
  
-        String sql = "Set search_path='eHotel'; Select a.email, a.password from customer a " //
-                + " where a.email = ? and a.password= ?";
- 
-        //select password, email from customer where password='pwd456' and email='jer@stpierre.ca';
+        
+        
+        //Accessing the right search path
+        PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+        path.execute();
+        
+        //preparing query for the user
+        String sql = "Select * from customer where email = ? and password= ?";
+        
         PreparedStatement pstm = conn.prepareStatement(sql);
         pstm.setString(1, email);
         pstm.setString(2, password);
         System.out.println(pstm);
         ResultSet rs = pstm.executeQuery();
+        
  
         if (rs.next()) {
-            UserAccount user = new UserAccount(null, null, null);
-            user.setUserName(email);
-            user.setPassword(password);
+        	System.out.println("Full Name = "+rs.getString("full_name"));
+            UserAccount user = new UserAccount(null, null, null, null, null, null);
+            user.setSin(rs.getString("sin"));
+            user.setFull_name(rs.getString("full_name"));
+            user.setAddress(rs.getString("address"));
+            user.setDate_registration(rs.getString("date_registration"));
+            user.setPassword(rs.getString("password"));
+            user.setUserName(rs.getString("email"));      
             return user;
         }
         return null;
@@ -45,7 +56,7 @@ public class DBUtils {
         if (rs.next()) {
             String password = rs.getString("Password");
             String gender = rs.getString("Gender");
-            UserAccount user = new UserAccount(null, null, null);
+            UserAccount user = new UserAccount(null, null, null, null, null, null);
             user.setUserName(userName);
             user.setPassword(password);
             return user;
