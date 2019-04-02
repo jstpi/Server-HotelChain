@@ -12,24 +12,7 @@ import io.jsonwebtoken.Jwts;
 // import io.jsonwebtoken.SignatureAlgorithm;
 // import io.jsonwebtoken.impl.crypto.MacProvider;
 
-public class JWTResponse {
-	public static UserAccount parseJWT(String token) {
-        try {
-            Claims body = Jwts.parser()
-                    .parseClaimsJws(token)
-                    .getBody();
-
-            UserAccount u = new UserAccount();
-            u.setType(body.getSubject());
-            u.setEmail(body.get("email").toString());
-
-            return u;
-
-        } catch (JwtException | ClassCastException e) {
-            return null;
-        }
-    }
-	
+public class JWTResponse {	
 	public static String createJWT(String id, String issuer, String subject, long ttlMillis) {
 
 	    long nowMillis = System.currentTimeMillis();

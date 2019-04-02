@@ -90,7 +90,7 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             MyUtils.storeLoginedUser(session, user);
  
-            LoginResponse loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "EHotel", user.getEmail(), 1000000), true); // 1000 sec log in
+            LoginResponse loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "EHotel", user.getSin(), 1000000), true); // 1000 sec log in
             
             response.setContentType("application/json");
             String json = new Gson().toJson(loginResponse);
