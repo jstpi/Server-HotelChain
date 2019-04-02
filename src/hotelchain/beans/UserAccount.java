@@ -13,6 +13,9 @@ public class UserAccount {
         this.password = password;
    }
    
+   public UserAccount() {
+  }
+   
    public String getType() {
        return type;
    }
@@ -25,7 +28,7 @@ public class UserAccount {
        return email;
    }
  
-   public void setUserName(String email) {
+   public void setEmail(String email) {
        this.email = email;
    }
  
