@@ -16,6 +16,7 @@ import hotelchain.beans.UserAccount;
 import hotelchain.utils.DBUtils;
 import hotelchain.utils.MyUtils;
 import hotelchain.response.mod.LoginResponse;
+import hotelchain.response.mod.JWTResponse;
 
 import com.google.gson.*;
  
@@ -31,9 +32,7 @@ public class LoginServlet extends HttpServlet {
     // This method will be executed.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-    	System.out.println(request.toString());
-    	
+            throws ServletException, IOException {	
     	StringBuffer jb = new StringBuffer();
     	String line = null;
 		  try {
@@ -44,7 +43,6 @@ public class LoginServlet extends HttpServlet {
 			  e.printStackTrace();
 		  }	
         
-		System.out.println(jb);
 		Gson g = new Gson();
 		UserAccount user = new UserAccount(null, null, null, null, null, null);
 		try{
@@ -79,27 +77,23 @@ public class LoginServlet extends HttpServlet {
         
         if (hasError) {
  
-            LoginResponse loginResponse = new LoginResponse(user.getEmail(), user.getPassword(), false, errorString);
+            LoginResponse loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "EHotel", errorString, 1000), false); // 1 sec error
             
             response.setContentType("application/json");
-            String json = new Gson().toJson(loginResponse);
-            response.setContentType("application/json");
+            String json = g.toJson(loginResponse);
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(json);
         }
         // If no error
         // Store user information in Session
-        // And redirect to userInfo page.
         else {
             HttpSession session = request.getSession();
             MyUtils.storeLoginedUser(session, user);
  
- 
-            LoginResponse loginResponse = new LoginResponse(user.getEmail(), user.getPassword(), true, errorString);
+            LoginResponse loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "EHotel", user.getSin(), 1000000), true); // 1000 sec log in
             
             response.setContentType("application/json");
             String json = new Gson().toJson(loginResponse);
-            response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(json);
         }
