@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import hotelchain.beans.Chain_admin;
+import hotelchain.beans.Employee;
 import hotelchain.beans.UserAccount;
 import hotelchain.utils.DBUtils;
 import hotelchain.utils.MyUtils;
@@ -43,10 +45,14 @@ public class LoginServlet extends HttpServlet {
 			  e.printStackTrace();
 		  }	
         
+		String userType;
 		Gson g = new Gson();
-		UserAccount user = new UserAccount(null, null, null, null, null, null);
+		userType = jb.toString();
+		System.out.println(userType.contains("Admin"));
+		
+		UserAccount userInfo = new UserAccount(null, null, null, null, null, null);
 		try{
-			user = g.fromJson(jb.toString(), UserAccount.class);
+			userInfo = g.fromJson(jb.toString(), UserAccount.class);
 		}
 		catch(JsonSyntaxException e) { 
 			e.printStackTrace();
@@ -54,20 +60,40 @@ public class LoginServlet extends HttpServlet {
  
         boolean hasError = false;
         String errorString = null;
+        Employee employee=null;
+        Chain_admin admin=null;
+        UserAccount user=null;
  
-        if (user.getEmail() == null || user.getPassword() == null || user.getEmail().length() == 0 || user.getPassword().length() == 0) {
+        if (userInfo.getEmail() == null || userInfo.getPassword() == null || userInfo.getEmail().length() == 0 || userInfo.getPassword().length() == 0) {
             hasError = true;
             errorString = "Required username and password!";
         } else {
             Connection conn = MyUtils.getStoredConnection(request);
             try {
                 // Find the user in the DB.
-            	user = DBUtils.findUser(conn, user.getEmail(), user.getPassword());
+            	if (userType.contains("Customer")) {
+            		user = DBUtils.findUser(conn, userInfo.getEmail(), userInfo.getPassword());
+            		if (user == null ) {
+                        hasError = true;
+                        errorString = "User Name or password invalid";
+                    }
+            	}
+            	else if (userType.contains("Employee")) {
+            		employee = DBUtils.findEmployee(conn, userInfo.getEmail(), userInfo.getPassword());
+            		if (employee == null ) {
+                        hasError = true;
+                        errorString = "User Name or password invalid";
+                    }
+            	}
+            	else if (userType.contains("Admin")) {
+            		admin = DBUtils.findAdmin(conn, userInfo.getEmail(), userInfo.getPassword());
+            		if (admin == null ) {
+                        hasError = true;
+                        errorString = "User Name or password invalid";
+                    }
+            	}
  
-                if (user == null) {
-                    hasError = true;
-                    errorString = "User Name or password invalid";
-                }
+                
             } catch (SQLException e) {
                 e.printStackTrace();
                 hasError = true;
@@ -87,8 +113,8 @@ public class LoginServlet extends HttpServlet {
         // If no error
         // Store user information in Session
         else {
-            HttpSession session = request.getSession();
-            MyUtils.storeLoginedUser(session, user);
+            //HttpSession session = request.getSession();
+            //MyUtils.storeLoginedUser(session, user);
  
             LoginResponse loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "EHotel", user.getSin(), 1000000), true); // 1000 sec log in
             

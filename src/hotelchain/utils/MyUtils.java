@@ -33,6 +33,7 @@ public class MyUtils {
         // On the JSP can access via ${loginedUser}
         session.setAttribute("loginedUser", loginedUser);
     }
+    
  
     // Get the user information stored in the session.
     public static UserAccount getLoginedUser(HttpSession session) {
