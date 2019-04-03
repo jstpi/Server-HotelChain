@@ -285,6 +285,29 @@ public class DBUtils {
 		}
 		return null;
 	}
+	
+	// create new customer
+		public static void createCustomer(Connection conn, String sin, String email, String pwd, String address, String name, String date) throws SQLException {
+
+			// Accessing the right search path
+			PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+			path.execute();
+
+			//INSERT INTO cutomer () VALUES(1,'Fred','Lafleche');
+			String sql = "INSERT INTO customer (sin,full_name,address,date_registration,password,email) VALUES('?','?','?','?','?','?');";
+
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setString(1, sin);
+			pstm.setString(2, name);
+			pstm.setString(3, address);
+			pstm.setString(4, date);
+			pstm.setString(5, pwd);
+			pstm.setString(6, email);
+
+			pstm.executeUpdate();
+			
+			
+		}
 
 	// sample update
 	public static void updateProduct(Connection conn, Product product) throws SQLException {
