@@ -3,6 +3,7 @@ package hotelchain.filter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Map;
  
 import javax.servlet.Filter;
@@ -72,15 +73,22 @@ public class JDBCFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
- 
+    	
         HttpServletRequest req = (HttpServletRequest) request;
+        
+        Enumeration headerNames = req.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            String value = req.getHeader(key);
+            System.out.println(key+": "+value);
+        }
         
         HttpServletResponse res = (HttpServletResponse) response;
         res.setHeader("Access-Control-Allow-Origin", req.getHeader("Origin"));
         res.setHeader("Access-Control-Allow-Credentials", "true");
-        res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+        res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
         res.setHeader("Access-Control-Max-Age", "3600");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me, Authorization");
  
         // Only open connections for the special requests.
         // (For example, the path to the servlet, JSP, ..)
@@ -101,7 +109,7 @@ public class JDBCFilter implements Filter {
  
                 // Store Connection object in attribute of request.
                 MyUtils.storeConnection(request, conn);
- 
+                
                 // Allow request to go forward
                 // (Go to the next filter or target)
                 chain.doFilter(request, response);
