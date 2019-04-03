@@ -8,12 +8,14 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import hotelchain.beans.Chain_admin;
+import hotelchain.beans.Employee;
 import hotelchain.beans.JWTModel;
 import hotelchain.beans.UserAccount;
 
 public class ValidateJWTUtils {
 	
-	public static String validate(HttpServletRequest request) {
+	public static String validate(HttpServletRequest request, String role) {
 		JWTModel jwt = getJWTModel(request);
 		if (jwt != null) {
 			//Test expire
@@ -26,13 +28,37 @@ public class ValidateJWTUtils {
 			//Test correct sin
 			try {
 				Connection conn = MyUtils.getStoredConnection(request);
-				UserAccount user = DBUtils.findInfo(conn, jwt.getSub());
-				if (user == null) {
-					return null;
+				if (role.contains("Customer")) {
+					UserAccount user = DBUtils.findInfo(conn, jwt.getSub());
+					if (user == null) {
+						return null;
+					}
+					else {
+						return jwt.getSub();
+					}
+				}
+				else if(role.contains("Employee")) {
+					Employee employee = DBUtils.findEmployeeInfo(conn, jwt.getSub());
+					if (employee == null) {
+						return null;
+					}
+					else {
+						return jwt.getSub();
+					}
+				}
+				else if(role.contains("Admin")) {
+					Chain_admin admin = DBUtils.findAdminInfo(conn, jwt.getSub());
+					if (admin == null) {
+						return null;
+					}
+					else {
+						return jwt.getSub();
+					}
 				}
 				else {
-					return jwt.getSub();
+					return null;
 				}
+				
 			} catch (SQLException e) {
 				e.printStackTrace();
 				return null;
