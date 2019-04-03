@@ -16,6 +16,8 @@ import javax.servlet.http.HttpSession;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import hotelchain.beans.Chain_admin;
+import hotelchain.beans.Employee;
 import hotelchain.beans.UserAccount;
 import hotelchain.response.mod.LoginResponse;
 import hotelchain.utils.DBUtils;
@@ -35,11 +37,15 @@ public class UserInfoServlet extends HttpServlet {
 			throws ServletException, IOException {
 
 		String sin = ValidateJWTUtils.validate(request);
+		String role = ValidateJWTUtils.role(request);
 		System.out.println(sin);
+		System.out.println(role);
 
 		UserAccount user = new UserAccount(null, null, null, null, null, null);
+		Employee employee = new Employee(null, null, null, null, null, null, null, null);
+		Chain_admin admin = new Chain_admin(null, null, null, null, null);
 
-		if (sin == null) {
+		if (sin == null || role == null) {
 			response.setContentType("application/json");
 			String json = new Gson().toJson(user);
 			response.setCharacterEncoding("UTF-8");
@@ -49,17 +55,24 @@ public class UserInfoServlet extends HttpServlet {
 			Connection conn = MyUtils.getStoredConnection(request);
 			try {
 				// Find the user in the DB.
-				user = DBUtils.findInfo(conn, sin);
+				if (role.contains("Customer")) {
+					user = DBUtils.findInfo(conn, sin);
+					
+					response.setContentType("application/json");
+					String json = new Gson().toJson(user);
+					response.setCharacterEncoding("UTF-8");
+					response.getWriter().write(json);
+				}
+				else if (role.contains("Employee")) {
+					
+				}
+				else if (role.contains("Admin")){
+					
+				}
 
 			} catch (SQLException e) {
 				e.printStackTrace();
-
 			}
-
-			response.setContentType("application/json");
-			String json = new Gson().toJson(user);
-			response.setCharacterEncoding("UTF-8");
-			response.getWriter().write(json);
 		}
 		
 	}

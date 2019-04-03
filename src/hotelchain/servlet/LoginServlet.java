@@ -119,12 +119,28 @@ public class LoginServlet extends HttpServlet {
             //HttpSession session = request.getSession();
             //MyUtils.storeLoginedUser(session, user);
  
-            LoginResponse loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "EHotel", user.getSin(), 1000000), true); // 1000 sec log in
+        	if (userType.contains("Customer")) {
+        		LoginResponse loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "Customer", user.getSin(), 1000000), true); // 1000 sec log in
+        		response.setContentType("application/json");
+                String json = new Gson().toJson(loginResponse);
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(json);
+        	}
+        	else if (userType.contains("Employee")) {
+        		LoginResponse loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "Employee", employee.getSin(), 1000000), true); // 1000 sec log in
+        		response.setContentType("application/json");
+                String json = new Gson().toJson(loginResponse);
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(json);
+        	}
+        	else {
+        		LoginResponse loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "Admin", admin.getAdmin_id(), 1000000), true); // 1000 sec log in
+        		response.setContentType("application/json");
+                String json = new Gson().toJson(loginResponse);
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(json);
+        	}   
             
-            response.setContentType("application/json");
-            String json = new Gson().toJson(loginResponse);
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(json);
         }
     }
  
