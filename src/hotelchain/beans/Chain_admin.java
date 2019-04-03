@@ -7,14 +7,16 @@ public class Chain_admin {
 	private String chain_name;
 	private String password;
 	private String email;
+	private String sin;
 	
-	public Chain_admin(String admin_id, String full_name, String chain_name, String pwd, String email) {
+	public Chain_admin(String admin_id, String full_name, String chain_name, String pwd, String email, String sin) {
 		
 		this.admin_id=admin_id;
 		this.full_name=full_name;
 		this.setChain_name(chain_name);
 		this.setPassword(password);
 		this.setEmail(email);
+		this.setSin(sin);
 	}
 	
 	public String getAdmin_id() {
@@ -46,6 +48,14 @@ public class Chain_admin {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getSin() {
+		return sin;
+	}
+
+	public void setSin(String sin) {
+		this.sin = sin;
 	}
 
 }

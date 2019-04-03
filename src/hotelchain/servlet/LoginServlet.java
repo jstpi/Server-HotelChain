@@ -47,8 +47,8 @@ public class LoginServlet extends HttpServlet {
         
 		String userType;
 		Gson g = new Gson();
+		//json string
 		userType = jb.toString();
-		System.out.println(userType.contains("Admin"));
 		
 		UserAccount userInfo = new UserAccount(null, null, null, null, null, null);
 		try{
@@ -115,8 +115,18 @@ public class LoginServlet extends HttpServlet {
         else {
             //HttpSession session = request.getSession();
             //MyUtils.storeLoginedUser(session, user);
- 
-            LoginResponse loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "EHotel", user.getSin(), 1000000), true); // 1000 sec log in
+        	LoginResponse loginResponse;
+        	
+        	if (userType.contains("Employee")){
+        		loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "EHotel", employee.getSin(), 1000000), true); // 1000 sec log in
+        	}
+        	else if (userType.contains("Admin")){
+        		loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "EHotel", admin.getAdmin_id(), 1000000), true); // 1000 sec log in
+        	}
+        	else{
+        		loginResponse = new LoginResponse(JWTResponse.createJWT("EHotel", "EHotel", user.getSin(), 1000000), true); // 1000 sec log in
+        	}
+            
             
             response.setContentType("application/json");
             String json = new Gson().toJson(loginResponse);

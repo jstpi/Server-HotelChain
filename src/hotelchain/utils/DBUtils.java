@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import hotelchain.beans.Chain_admin;
 import hotelchain.beans.Employee;
+import hotelchain.beans.Hotel;
 import hotelchain.beans.Product;
 import hotelchain.beans.UserAccount;
 
@@ -14,7 +15,7 @@ public class DBUtils {
 
 	public static UserAccount findUser(Connection conn, String email, String password) throws SQLException {
 
-		System.out.println("The account is of type Customer.");
+		//System.out.println("The account is of type Customer.");
 		
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
@@ -45,7 +46,7 @@ public class DBUtils {
 	
 	public static Employee findEmployee(Connection conn, String email, String password) throws SQLException {
 		
-		System.out.println("The account is of type Employee.");
+		//System.out.println("The account is of type Employee.");
 		
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
@@ -79,7 +80,7 @@ public class DBUtils {
 	
 	public static Chain_admin findAdmin(Connection conn, String email, String password) throws SQLException {
 
-		System.out.println("The account is of type Admin.");
+		//System.out.println("The account is of type Admin.");
 		
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
@@ -96,13 +97,14 @@ public class DBUtils {
 
 		if (rs.next()) {
 			System.out.println("Full Name = " + rs.getString("full_name"));
-			Chain_admin admin = new Chain_admin(null, null, null, null, null);
+			Chain_admin admin = new Chain_admin(null, null, null, null, null,null);
 
 			admin.setAdmin_id(rs.getString("admin_id"));
 			admin.setChain_name(rs.getString("chain_name"));
 			admin.setFull_name(rs.getString("full_name"));
 			admin.setPassword(rs.getString("password"));
 			admin.setEmail(rs.getString("email"));
+			admin.setSin(rs.getString("sin"));
 			return admin;
 		}
 		return null;
@@ -135,24 +137,85 @@ public class DBUtils {
 		}
 		return null;
 	}
+	
+	public static Employee findEmployeeInfo(Connection conn, String sin) throws SQLException {
 
-	public static UserAccount findUser(Connection conn, String userName) throws SQLException {
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		path.execute();
 
-		String sql = "Select a.User_Name, a.Password, a.Gender from User_Account a "//
-				+ " where a.User_Name = ? ";
+		// preparing query for the user
+		String sql = "Select * from employee where sin = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setString(1, userName);
+		pstm.setString(1, sin);
+		System.out.println(pstm);
+		ResultSet rs = pstm.executeQuery();
+
+		if (rs.next()) {
+			System.out.println("Full Name = " + rs.getString("full_name"));
+			Employee employee = new Employee(null, null, null, null, null, null, null, null);
+			employee.setSin(rs.getString("sin"));
+			employee.setFull_name(rs.getString("full_name"));
+			employee.setAddress(rs.getString("address"));
+			employee.setChain_name(rs.getString("chain_name"));
+			employee.setHotel_id(rs.getString("hotel_id"));
+			employee.setEmployee_id(rs.getString("employee_id"));
+			employee.setChain_name(rs.getString("chain_name"));
+			employee.setPassword(rs.getString("password"));
+			employee.setEmail(rs.getString("email"));
+			return employee;
+		}
+		return null;
+	}
+	
+	public static Chain_admin findAdminInfo(Connection conn, String sin) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		path.execute();
+
+		// preparing query for the user
+		String sql = "Select * from chain_admin where sin = ?";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, sin);
+		System.out.println(pstm);
+		ResultSet rs = pstm.executeQuery();
+
+		if (rs.next()) {
+			System.out.println("Full Name = " + rs.getString("full_name"));
+			Chain_admin admin = new Chain_admin(null, null, null, null, null, null);
+			admin.setSin(rs.getString("sin"));
+			admin.setFull_name(rs.getString("full_name"));
+			admin.setPassword(rs.getString("password"));
+			admin.setEmail(rs.getString("email"));
+			admin.setChain_name(rs.getString("chain_name"));
+			admin.setAdmin_id(rs.getString("admin_id"));
+			return admin;
+		}
+		return null;
+	}
+
+	public static Hotel findHotel(Connection conn, String address) throws SQLException {
+
+		String sql = "SELECT * FROM hotel WHERE hotel_address ~* '?'";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, address);
 
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
-			String password = rs.getString("Password");
-			String gender = rs.getString("Gender");
-			UserAccount user = new UserAccount(null, null, null, null, null, null);
-			user.setEmail(userName);
-			user.setPassword(password);
-			return user;
+			Hotel hotel = new Hotel(null, null, 1, null, null, 1);
+			hotel.setChain_name(rs.getString("chain_name"));
+			hotel.setHotel_id(rs.getString("hotel_id"));
+			hotel.setHotel_address(rs.getString("hotel_address"));
+			hotel.setContact_email_address(rs.getString("contact_email_address"));
+			hotel.setNumber_of_rooms(rs.getInt("number_of_rooms"));
+			hotel.setRating(rs.getFloat("chain_name"));
+
+			return hotel;
 		}
 		return null;
 	}
