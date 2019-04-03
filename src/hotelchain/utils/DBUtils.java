@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
+import hotelchain.beans.Chain;
 import hotelchain.beans.Chain_admin;
 import hotelchain.beans.Employee;
 import hotelchain.beans.Hotel;
@@ -15,8 +18,8 @@ public class DBUtils {
 
 	public static UserAccount findUser(Connection conn, String email, String password) throws SQLException {
 
-		//System.out.println("The account is of type Customer.");
-		
+		// System.out.println("The account is of type Customer.");
+
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
 		path.execute();
@@ -27,7 +30,7 @@ public class DBUtils {
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, email);
 		pstm.setString(2, password);
-		System.out.println(pstm);
+		//System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -43,11 +46,11 @@ public class DBUtils {
 		}
 		return null;
 	}
-	
+
 	public static Employee findEmployee(Connection conn, String email, String password) throws SQLException {
-		
-		//System.out.println("The account is of type Employee.");
-		
+
+		// System.out.println("The account is of type Employee.");
+
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
 		path.execute();
@@ -64,7 +67,7 @@ public class DBUtils {
 		if (rs.next()) {
 			System.out.println("Full Name = " + rs.getString("full_name"));
 			Employee employee = new Employee(null, null, null, null, null, null, null, null);
-			//missing chain, hotel and employee id
+			// missing chain, hotel and employee id
 			employee.setChain_name(rs.getString("chain_name"));
 			employee.setHotel_id(rs.getString("hotel_id"));
 			employee.setEmployee_id(rs.getString("employee_id"));
@@ -77,11 +80,11 @@ public class DBUtils {
 		}
 		return null;
 	}
-	
+
 	public static Chain_admin findAdmin(Connection conn, String email, String password) throws SQLException {
 
-		//System.out.println("The account is of type Admin.");
-		
+		// System.out.println("The account is of type Admin.");
+
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
 		path.execute();
@@ -97,7 +100,7 @@ public class DBUtils {
 
 		if (rs.next()) {
 			System.out.println("Full Name = " + rs.getString("full_name"));
-			Chain_admin admin = new Chain_admin(null, null, null, null, null,null);
+			Chain_admin admin = new Chain_admin(null, null, null, null, null, null);
 
 			admin.setAdmin_id(rs.getString("admin_id"));
 			admin.setChain_name(rs.getString("chain_name"));
@@ -109,7 +112,7 @@ public class DBUtils {
 		}
 		return null;
 	}
-	
+
 	public static UserAccount findInfo(Connection conn, String sin) throws SQLException {
 
 		// Accessing the right search path
@@ -137,7 +140,7 @@ public class DBUtils {
 		}
 		return null;
 	}
-	
+
 	public static Employee findEmployeeInfo(Connection conn, String sin) throws SQLException {
 
 		// Accessing the right search path
@@ -168,7 +171,7 @@ public class DBUtils {
 		}
 		return null;
 	}
-	
+
 	public static Chain_admin findAdminInfo(Connection conn, String sin) throws SQLException {
 
 		// Accessing the right search path
@@ -197,12 +200,50 @@ public class DBUtils {
 		return null;
 	}
 
-	public static Hotel findHotel(Connection conn, String address) throws SQLException {
+	public static Hotel[] findHotel(Connection conn, String address) throws SQLException {
 
-		String sql = "SELECT * FROM hotel WHERE hotel_address ~* '?'";
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		path.execute();
+
+		String sql = "SELECT * FROM hotel WHERE hotel_address ~* '"+address+"';";
+		System.out.println(sql);
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		// pstm.setString(1, address);
+		ResultSet rs = pstm.executeQuery();
+		int i = 0;
+
+		Deque<Hotel> hotelStack = new ArrayDeque<Hotel>();
+		while (rs.next()) {
+
+			Hotel hotel = new Hotel(null, null, 1, null, null, 1);
+			hotel.setChain_name(rs.getString("chain_name"));
+			hotel.setHotel_id(rs.getString("hotel_id"));
+			hotel.setHotel_address(rs.getString("hotel_address"));
+			hotel.setContact_email_address(rs.getString("contact_email_address"));
+			hotel.setNumber_of_rooms(rs.getInt("number_of_rooms"));
+			hotel.setRating(rs.getFloat("rating"));
+			hotelStack.push(hotel);
+
+		}
+		if (!hotelStack.isEmpty()) {
+			Hotel[] hotel = (Hotel[]) hotelStack.toArray(new Hotel[hotelStack.size()]);
+			return hotel;
+		}
+		return null;
+	}
+
+	// find hotel with employee sin
+	public static Hotel findEmployeeHotel(Connection conn, String sin) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		path.execute();
+
+		String sql = "select * from hotel where hotel_id=\r\n" + "(select hotel_id from employee where sin='?');";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setString(1, address);
+		pstm.setString(1, sin);
 
 		ResultSet rs = pstm.executeQuery();
 
@@ -216,6 +257,31 @@ public class DBUtils {
 			hotel.setRating(rs.getFloat("chain_name"));
 
 			return hotel;
+		}
+		return null;
+	}
+
+	// find chain with admin sin
+	public static Chain findAdminChain(Connection conn, String sin) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		path.execute();
+
+		String sql = "select * from chain where chain_name=\r\n" + "(select chain_name from chain_admin where sin='?')";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, sin);
+
+		ResultSet rs = pstm.executeQuery();
+
+		if (rs.next()) {
+			Chain chain = new Chain(null, null, 1);
+			chain.setChain_name(rs.getString("chain_name"));
+			chain.setCentral_office_address(rs.getString("central_office_address"));
+			chain.setNumber_of_hotels(rs.getInt("number_of_hotels"));
+
+			return chain;
 		}
 		return null;
 	}
