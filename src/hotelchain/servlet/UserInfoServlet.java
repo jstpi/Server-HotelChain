@@ -20,6 +20,7 @@ import hotelchain.beans.UserAccount;
 import hotelchain.response.mod.LoginResponse;
 import hotelchain.utils.DBUtils;
 import hotelchain.utils.MyUtils;
+import hotelchain.utils.ValidateJWTUtils;
 
 @WebServlet(urlPatterns = { "/userInfo" })
 public class UserInfoServlet extends HttpServlet {
@@ -33,43 +34,34 @@ public class UserInfoServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		System.out.println(request.toString());
+		String sin = ValidateJWTUtils.validate(request);
+		System.out.println(sin);
 
-		StringBuffer jb = new StringBuffer();
-		String line = null;
-		try {
-			BufferedReader reader = request.getReader();
-			while ((line = reader.readLine()) != null)
-				jb.append(line);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		System.out.println(jb);
-		Gson g = new Gson();
 		UserAccount user = new UserAccount(null, null, null, null, null, null);
-		try {
-			user = g.fromJson(jb.toString(), UserAccount.class);
-		} catch (JsonSyntaxException e) {
-			e.printStackTrace();
+
+		if (sin == null) {
+			response.setContentType("application/json");
+			String json = new Gson().toJson(user);
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().write(json);
 		}
+		else {
+			Connection conn = MyUtils.getStoredConnection(request);
+			try {
+				// Find the user in the DB.
+				user = DBUtils.findInfo(conn, sin);
 
-		Connection conn = MyUtils.getStoredConnection(request);
-		try {
-			// Find the user in the DB.
-			user = DBUtils.findInfo(conn, user.getSin());
+			} catch (SQLException e) {
+				e.printStackTrace();
 
-		} catch (SQLException e) {
-			e.printStackTrace();
+			}
 
+			response.setContentType("application/json");
+			String json = new Gson().toJson(user);
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().write(json);
 		}
-
-		response.setContentType("application/json");
-		String json = new Gson().toJson(user);
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(json);
-
+		
 	}
 
 }

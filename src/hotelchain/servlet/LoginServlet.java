@@ -33,6 +33,9 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {	
+    	
+		System.out.println(request.getHeader("authorization"));
+		  
     	StringBuffer jb = new StringBuffer();
     	String line = null;
 		  try {
