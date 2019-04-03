@@ -13,6 +13,7 @@ import hotelchain.beans.Employee;
 import hotelchain.beans.Hotel;
 import hotelchain.beans.Product;
 import hotelchain.beans.UserAccount;
+import java.sql.Date;
 
 public class DBUtils {
 
@@ -292,18 +293,21 @@ public class DBUtils {
 			// Accessing the right search path
 			PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
 			path.execute();
+			
+			Date realDate=Date.valueOf(date);
 
 			//INSERT INTO cutomer () VALUES(1,'Fred','Lafleche');
-			String sql = "INSERT INTO customer (sin,full_name,address,date_registration,password,email) VALUES('?','?','?','?','?','?');";
-
+			String sql = "INSERT INTO customer (sin,full_name,address,date_registration,password,email) VALUES(?,?,?,?,?,?);";
 			PreparedStatement pstm = conn.prepareStatement(sql);
 			pstm.setString(1, sin);
 			pstm.setString(2, name);
 			pstm.setString(3, address);
-			pstm.setString(4, date);
+			pstm.setDate(4, realDate);
 			pstm.setString(5, pwd);
 			pstm.setString(6, email);
 
+			System.out.println(pstm);
+			
 			pstm.executeUpdate();
 			
 			
