@@ -11,10 +11,10 @@ public class PostGresConnUtils {
            throws ClassNotFoundException, SQLException {
   
        // Note: Change the connection parameters accordingly.
-       String hostName = "web0.eecs.uottawa.ca";
-       String port = "15432";
-       String userName = "flafl086";
-       String password = "Cx5rrpap9r";
+       String hostName = "127.0.0.1";
+       String port = "5432";
+       String userName = "postgres";
+       String password = "pwd123";
   
        return getPostGresConnection(hostName, port, userName, password);
    }

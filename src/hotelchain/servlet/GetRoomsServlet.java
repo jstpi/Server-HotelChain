@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import hotelchain.beans.Chain_admin;
 import hotelchain.beans.Employee;
 import hotelchain.beans.Hotel;
+import hotelchain.beans.Room;
 import hotelchain.beans.UserAccount;
 import hotelchain.utils.DBUtils;
 import hotelchain.utils.MyUtils;
@@ -23,11 +24,11 @@ import hotelchain.response.mod.JWTResponse;
 
 import com.google.gson.*;
 
-@WebServlet(urlPatterns = { "/searchHotel" })
-public class SearchHotelServlet extends HttpServlet {
+@WebServlet(urlPatterns = { "/getRooms" })
+public class GetRoomsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	public SearchHotelServlet() {
+	public GetRoomsServlet() {
 		super();
 	}
 
@@ -47,34 +48,26 @@ public class SearchHotelServlet extends HttpServlet {
 		}
 
 		Gson g = new Gson();
-		Hotel hotel = new Hotel(null, null, 1, null, null, 1);
+		Room room=new Room(1,null,null,1,1,null,false);
 
 		try {
-			hotel = g.fromJson(jb.toString(), Hotel.class);
+			room = g.fromJson(jb.toString(), Room.class);
 		} catch (JsonSyntaxException e) {
 			e.printStackTrace();
 		}
 
 		boolean hasError = false;
 		String errorString = null;
-		Hotel[] hotelArray = null;
+		Room[] roomArray = null;
 
-		if (hotel.getHotel_address() == null || hotel.getHotel_address().length() == 0) {
+		if (room.getHotel_id() == null || room.getHotel_id().length() == 0) {
 			hasError = true;
-			errorString = "City required!";
+			errorString = "Hotel required!";
 		} else {
 			Connection conn = MyUtils.getStoredConnection(request);
 			try {
 				// Find the hotels in the DB.
-				hotelArray = DBUtils.findHotel(conn, hotel.getHotel_address());
-				int minPrice;
-				Integer[] capacities;
-				for (int i=0;i<hotelArray.length;i++) {
-					minPrice=DBUtils.findMinPrice(conn, hotelArray[i].getHotel_id());
-					hotelArray[i].setMinPrice(minPrice);
-					capacities=DBUtils.findHotelCapacities(conn, hotelArray[i].getHotel_id());
-					hotelArray[i].setCapacities(capacities);
-				}
+				roomArray = DBUtils.findRooms(conn, room.getHotel_id());
 
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -84,7 +77,7 @@ public class SearchHotelServlet extends HttpServlet {
 		
 
 		response.setContentType("application/json");
-		String json = new Gson().toJson(hotelArray);
+		String json = new Gson().toJson(roomArray);
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(json);
 

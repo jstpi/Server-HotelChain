@@ -12,6 +12,7 @@ import hotelchain.beans.Chain_admin;
 import hotelchain.beans.Employee;
 import hotelchain.beans.Hotel;
 import hotelchain.beans.Product;
+import hotelchain.beans.Room;
 import hotelchain.beans.UserAccount;
 import java.sql.Date;
 
@@ -22,7 +23,7 @@ public class DBUtils {
 		// System.out.println("The account is of type Customer.");
 
 		// Accessing the right search path
-		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		// preparing query for the user
@@ -31,7 +32,7 @@ public class DBUtils {
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, email);
 		pstm.setString(2, password);
-		//System.out.println(pstm);
+		// System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -53,7 +54,7 @@ public class DBUtils {
 		// System.out.println("The account is of type Employee.");
 
 		// Accessing the right search path
-		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		// preparing query for the employee
@@ -87,7 +88,7 @@ public class DBUtils {
 		// System.out.println("The account is of type Admin.");
 
 		// Accessing the right search path
-		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		// preparing query for the employee
@@ -117,7 +118,7 @@ public class DBUtils {
 	public static UserAccount findInfo(Connection conn, String sin) throws SQLException {
 
 		// Accessing the right search path
-		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		// preparing query for the user
@@ -145,7 +146,7 @@ public class DBUtils {
 	public static Employee findEmployeeInfo(Connection conn, String sin) throws SQLException {
 
 		// Accessing the right search path
-		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		// preparing query for the user
@@ -176,7 +177,7 @@ public class DBUtils {
 	public static Chain_admin findAdminInfo(Connection conn, String sin) throws SQLException {
 
 		// Accessing the right search path
-		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		// preparing query for the user
@@ -200,14 +201,15 @@ public class DBUtils {
 		}
 		return null;
 	}
-
+	
+	//find hotel with part of address
 	public static Hotel[] findHotel(Connection conn, String address) throws SQLException {
 
 		// Accessing the right search path
-		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
-		String sql = "SELECT * FROM hotel WHERE hotel_address ~* '"+address+"';";
+		String sql = "SELECT * FROM hotel WHERE hotel_address ~* '" + address + "';";
 		System.out.println(sql);
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		// pstm.setString(1, address);
@@ -233,12 +235,47 @@ public class DBUtils {
 		}
 		return null;
 	}
-
-	// find hotel with employee sin
-	public static Hotel findEmployeeHotel(Connection conn, String sin) throws SQLException {
+	
+	//find rooms with hotel_id
+	public static Room[] findRooms(Connection conn, String hotel_id) throws SQLException {
 
 		// Accessing the right search path
-		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		String sql = "SELECT * FROM room WHERE hotel_id=?;";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, hotel_id);
+		ResultSet rs = pstm.executeQuery();
+		int i = 0;
+
+		Deque<Room> roomStack = new ArrayDeque<Room>();
+		while (rs.next()) {
+
+			Room room=new Room(1,null,null,1,1,null,false);
+			room.setRoom_number(rs.getInt("room_number"));
+			room.setHotel_id(rs.getString("hotel_id"));
+			room.setChain_name(rs.getString("chain_name"));
+			room.setPrice(rs.getFloat("price"));
+			room.setCapacity(rs.getInt("capacity"));
+			room.setView_type(rs.getString("view_type"));
+			room.setIs_extendable(rs.getBoolean("is_extendable"));
+			
+			roomStack.push(room);
+
+		}
+		if (!roomStack.isEmpty()) {
+			Room[] room = (Room[]) roomStack.toArray(new Room[roomStack.size()]);
+			return room;
+		}
+		return null;
+	}
+
+	// find hotel with employee sin
+	public static Hotel findEmployeehotel(Connection conn, String sin) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		String sql = "select * from hotel where hotel_id=\r\n" + "(select hotel_id from employee where sin='?');";
@@ -266,7 +303,7 @@ public class DBUtils {
 	public static Chain findAdminChain(Connection conn, String sin) throws SQLException {
 
 		// Accessing the right search path
-		PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		String sql = "select * from chain where chain_name=\r\n" + "(select chain_name from chain_admin where sin='?')";
@@ -286,32 +323,78 @@ public class DBUtils {
 		}
 		return null;
 	}
-	
+
 	// create new customer
-		public static void createCustomer(Connection conn, String sin, String email, String pwd, String address, String name, String date) throws SQLException {
+	public static void createCustomer(Connection conn, String sin, String email, String pwd, String address,
+			String name, String date) throws SQLException {
 
-			// Accessing the right search path
-			PreparedStatement path = conn.prepareStatement("Set search_path='eHotel';");
-			path.execute();
-			
-			Date realDate=Date.valueOf(date);
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
 
-			//INSERT INTO cutomer () VALUES(1,'Fred','Lafleche');
-			String sql = "INSERT INTO customer (sin,full_name,address,date_registration,password,email) VALUES(?,?,?,?,?,?);";
-			PreparedStatement pstm = conn.prepareStatement(sql);
-			pstm.setString(1, sin);
-			pstm.setString(2, name);
-			pstm.setString(3, address);
-			pstm.setDate(4, realDate);
-			pstm.setString(5, pwd);
-			pstm.setString(6, email);
+		Date realDate = Date.valueOf(date);
 
-			System.out.println(pstm);
-			
-			pstm.executeUpdate();
-			
-			
+		// INSERT INTO cutomer () VALUES(1,'Fred','Lafleche');
+		String sql = "INSERT INTO customer (sin,full_name,address,date_registration,password,email) VALUES(?,?,?,?,?,?);";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, sin);
+		pstm.setString(2, name);
+		pstm.setString(3, address);
+		pstm.setDate(4, realDate);
+		pstm.setString(5, pwd);
+		pstm.setString(6, email);
+
+		System.out.println(pstm);
+
+		pstm.executeUpdate();
+
+	}
+	//find Minimum room price in hotel
+	public static int findMinPrice(Connection conn, String hotel_id) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("select Min(price) from room where hotel_id = ?;");
+		path.execute();
+
+
+		// INSERT INTO cutomer () VALUES(1,'Fred','Lafleche');
+		String sql = "Select price in hotel where...";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, hotel_id);
+		
+		ResultSet rs = pstm.executeQuery();
+		
+		return rs.getInt("min");
+
+
+	}
+	//find the different room capacities in hotel
+	public static Integer[] findHotelCapacities(Connection conn, String hotel_id) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+
+		// INSERT INTO cutomer () VALUES(1,'Fred','Lafleche');
+		String sql = "SELECT DISTINCT capacity FROM room where hotel_id= ?;";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, hotel_id);
+		
+		ResultSet rs = pstm.executeQuery();
+		
+		Deque<Integer> capacityStack = new ArrayDeque<Integer>();
+		while (rs.next()) {
+			capacityStack.push(rs.getInt("capacity"));
 		}
+		
+		if (!capacityStack.isEmpty()) {
+			Integer[] i = (Integer[]) capacityStack.toArray(new Integer[capacityStack.size()]);
+			return i;
+		}
+
+		return null;
+	}
 
 	// sample update
 	public static void updateProduct(Connection conn, Product product) throws SQLException {

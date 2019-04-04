@@ -8,7 +8,12 @@ public class Hotel {
 	private String hotel_address;
 	private String contact_email_address;
 	private float rating;
-
+	private int minPrice;
+	private Integer[] capacities;
+	//private int availableRooms;
+	
+	//min price, capacity(1,2,3) , available rooms
+	
 	public Hotel(String hotel_id, String chain_name, int number_of_rooms, String hotel_address,
 			String contact_email_address, float rating) {
 		this.setHotel_id(hotel_id);
@@ -66,6 +71,22 @@ public class Hotel {
 
 	public void setRating(float rating) {
 		this.rating = rating;
+	}
+
+	public int getMinPrice() {
+		return minPrice;
+	}
+
+	public void setMinPrice(int minPrice) {
+		this.minPrice = minPrice;
+	}
+
+	public Integer[] getCapacities() {
+		return capacities;
+	}
+
+	public void setCapacities(Integer[] capacities) {
+		this.capacities = capacities;
 	}
 
 }
