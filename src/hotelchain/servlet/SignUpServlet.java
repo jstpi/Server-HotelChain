@@ -19,6 +19,7 @@ import hotelchain.beans.UserAccount;
 import hotelchain.utils.DBUtils;
 import hotelchain.utils.MyUtils;
 import hotelchain.response.mod.LoginResponse;
+import hotelchain.response.mod.SignupResponse;
 import hotelchain.response.mod.JWTResponse;
 
 import com.google.gson.*;
@@ -63,28 +64,57 @@ public class SignUpServlet extends HttpServlet {
 		user.setDate_registration(dateFormat.format(date));
 		
 		boolean hasError = false;
-		String errorString = null;
-		Hotel[] hotelArray = null;
+		String errorString = "";
 
 		if (user.getSin() == null || user.getSin().length() == 0) {
 			hasError = true;
-			errorString = "City required!";
-		} else {
+			errorString = "Sin required!";
+		}
+		else {
 			Connection conn = MyUtils.getStoredConnection(request);
+			UserAccount similarUser = null;
 			try {
-				// Find the hotels in the DB.
-				DBUtils.createCustomer(conn, user.getSin(), user.getEmail(), user.getPassword(), user.getAddress(), user.getFull_name(), user.getDate_registration());
-
+				similarUser = DBUtils.findInfo(conn, user.getSin());
 			} catch (SQLException e) {
 				e.printStackTrace();
-
+				hasError = true;
+				errorString = "Error occured during the query";
+			}
+			
+			if (similarUser != null) {
+				hasError = true;
+				errorString = "A user with the same sin is already existing";
+			}
+			else {
+				try {
+					// Find the hotels in the DB.
+					DBUtils.createCustomer(conn, user.getSin(), user.getEmail(), user.getPassword(), user.getAddress(), user.getFull_name(), user.getDate_registration());
+				} catch (SQLException e) {
+					e.printStackTrace();
+					hasError = true;
+					errorString = "Error occured during the insertion of the customer";
+				}
 			}
 		}
+		
+		if (hasError) {
+			SignupResponse signupResponse = new SignupResponse(errorString, false);
 
-		response.setContentType("application/json");
-		String json = new Gson().toJson(user);
-		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(json);
+			response.setContentType("application/json");
+			String json = new Gson().toJson(signupResponse);
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().write(json);
+		}
+		else {
+			SignupResponse signupResponse = new SignupResponse(errorString, true);
+
+			response.setContentType("application/json");
+			String json = new Gson().toJson(signupResponse);
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().write(json);
+		}
+		
+		
 
 	}
 
