@@ -76,13 +76,6 @@ public class JDBCFilter implements Filter {
     	
         HttpServletRequest req = (HttpServletRequest) request;
         
-        Enumeration headerNames = req.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String key = (String) headerNames.nextElement();
-            String value = req.getHeader(key);
-            System.out.println(key+": "+value);
-        }
-        
         HttpServletResponse res = (HttpServletResponse) response;
         res.setHeader("Access-Control-Allow-Origin", req.getHeader("Origin"));
         res.setHeader("Access-Control-Allow-Credentials", "true");
