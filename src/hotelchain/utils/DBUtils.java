@@ -201,8 +201,8 @@ public class DBUtils {
 		}
 		return null;
 	}
-	
-	//find hotel with part of address
+
+	// find hotel with part of address
 	public static Hotel[] findHotel(Connection conn, String address) throws SQLException {
 
 		// Accessing the right search path
@@ -235,24 +235,37 @@ public class DBUtils {
 		}
 		return null;
 	}
-	
-	//find rooms with hotel_id
-	public static Room[] findRooms(Connection conn, String hotel_id) throws SQLException {
+
+	// find rooms with hotel_id
+	public static Room[] findRooms(Connection conn, String hotel_id, String check_in) throws SQLException {
 
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
-		String sql = "SELECT * FROM room WHERE hotel_id=?;";
+		Date realDate = Date.valueOf(check_in);
+
+		String sql = "(select * from room where hotel_id=?) Except\r\n"
+				+ "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable"
+				+ " from room Natural join room_book\r\n"
+				+ "Natural join book where check_in=? and hotel_id=?)\r\n" + "Except\r\n"
+				+ "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable\r\n"
+				+ " from room \r\n" + "Natural join room_rent\r\n"
+				+ "Natural join rent where check_in=? \r\n" + "and hotel_id=?)";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
+		pstm.setDate(1, realDate);
+		pstm.setString(1, hotel_id);
+		pstm.setDate(1, realDate);
+		pstm.setString(1, hotel_id);
 		ResultSet rs = pstm.executeQuery();
+
 		int i = 0;
 
 		Deque<Room> roomStack = new ArrayDeque<Room>();
 		while (rs.next()) {
 
-			Room room=new Room(1,null,null,1,1,null,false);
+			Room room = new Room(1, null, null, 1, 1, null, false);
 			room.setRoom_number(rs.getInt("room_number"));
 			room.setHotel_id(rs.getString("hotel_id"));
 			room.setChain_name(rs.getString("chain_name"));
@@ -260,7 +273,7 @@ public class DBUtils {
 			room.setCapacity(rs.getInt("capacity"));
 			room.setView_type(rs.getString("view_type"));
 			room.setIs_extendable(rs.getBoolean("is_extendable"));
-			
+
 			roomStack.push(room);
 
 		}
@@ -349,45 +362,44 @@ public class DBUtils {
 		pstm.executeUpdate();
 
 	}
-	//find Minimum room price in hotel
+
+	// find Minimum room price in hotel
 	public static float findMinPrice(Connection conn, String hotel_id) throws SQLException {
 
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
-
 		// INSERT INTO cutomer () VALUES(1,'Fred','Lafleche');
 		String sql = "select Min(price) from room where hotel_id = ?";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
-		
+
 		ResultSet rs = pstm.executeQuery();
 		rs.next();
 		return rs.getFloat("min");
 
-
 	}
-	//find the different room capacities in hotel
+
+	// find the different room capacities in hotel
 	public static Integer[] findHotelCapacities(Connection conn, String hotel_id) throws SQLException {
 
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
-
 		// INSERT INTO cutomer () VALUES(1,'Fred','Lafleche');
 		String sql = "SELECT DISTINCT capacity FROM room where hotel_id= ?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
-		
+
 		ResultSet rs = pstm.executeQuery();
-		
+
 		Deque<Integer> capacityStack = new ArrayDeque<Integer>();
 		while (rs.next()) {
 			capacityStack.push(rs.getInt("capacity"));
 		}
-		
+
 		if (!capacityStack.isEmpty()) {
 			Integer[] i = (Integer[]) capacityStack.toArray(new Integer[capacityStack.size()]);
 			return i;

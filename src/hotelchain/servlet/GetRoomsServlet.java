@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import hotelchain.beans.Book;
 import hotelchain.beans.Chain_admin;
 import hotelchain.beans.Employee;
 import hotelchain.beans.Hotel;
@@ -49,9 +50,11 @@ public class GetRoomsServlet extends HttpServlet {
 
 		Gson g = new Gson();
 		Room room=new Room(1,null,null,1,1,null,false);
+		Book book=new Book(null,null,null,null,false);
 
 		try {
 			room = g.fromJson(jb.toString(), Room.class);
+			book = g.fromJson(jb.toString(), Book.class);
 		} catch (JsonSyntaxException e) {
 			e.printStackTrace();
 		}
@@ -67,7 +70,7 @@ public class GetRoomsServlet extends HttpServlet {
 			Connection conn = MyUtils.getStoredConnection(request);
 			try {
 				// Find the hotels in the DB.
-				roomArray = DBUtils.findRooms(conn, room.getHotel_id());
+				roomArray = DBUtils.findRooms(conn, room.getHotel_id(), book.getCheck_in());
 
 			} catch (SQLException e) {
 				e.printStackTrace();

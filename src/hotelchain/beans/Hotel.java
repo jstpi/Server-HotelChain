@@ -22,7 +22,7 @@ public class Hotel {
 		this.setHotel_address(hotel_address);
 		this.setContact_email_address(contact_email_address);
 		this.setRating(rating);
-
+		this.capacities=null;
 	}
 
 	public String getHotel_id() {
