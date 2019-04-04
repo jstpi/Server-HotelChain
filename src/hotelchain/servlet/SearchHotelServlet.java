@@ -67,10 +67,11 @@ public class SearchHotelServlet extends HttpServlet {
 			try {
 				// Find the hotels in the DB.
 				hotelArray = DBUtils.findHotel(conn, hotel.getHotel_address());
-				int minPrice;
+				float minPrice;
 				Integer[] capacities;
 				for (int i=0;i<hotelArray.length;i++) {
 					minPrice=DBUtils.findMinPrice(conn, hotelArray[i].getHotel_id());
+					System.out.println(minPrice);
 					hotelArray[i].setMinPrice(minPrice);
 					capacities=DBUtils.findHotelCapacities(conn, hotelArray[i].getHotel_id());
 					hotelArray[i].setCapacities(capacities);

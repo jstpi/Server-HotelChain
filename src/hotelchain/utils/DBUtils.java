@@ -272,7 +272,7 @@ public class DBUtils {
 	}
 
 	// find hotel with employee sin
-	public static Hotel findEmployeehotel(Connection conn, String sin) throws SQLException {
+	public static Hotel findEmployeeHotel(Connection conn, String sin) throws SQLException {
 
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
@@ -350,21 +350,21 @@ public class DBUtils {
 
 	}
 	//find Minimum room price in hotel
-	public static int findMinPrice(Connection conn, String hotel_id) throws SQLException {
+	public static float findMinPrice(Connection conn, String hotel_id) throws SQLException {
 
 		// Accessing the right search path
-		PreparedStatement path = conn.prepareStatement("select Min(price) from room where hotel_id = ?;");
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 
 		// INSERT INTO cutomer () VALUES(1,'Fred','Lafleche');
-		String sql = "Select price in hotel where...";
+		String sql = "select Min(price) from room where hotel_id = ?";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
 		
 		ResultSet rs = pstm.executeQuery();
-		
-		return rs.getInt("min");
+		rs.next();
+		return rs.getFloat("min");
 
 
 	}
