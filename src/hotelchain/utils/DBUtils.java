@@ -65,7 +65,7 @@ public class DBUtils {
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, email);
 		pstm.setString(2, password);
-		System.out.println(pstm);
+		//System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -99,7 +99,7 @@ public class DBUtils {
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, email);
 		pstm.setString(2, password);
-		System.out.println(pstm);
+		//System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -128,7 +128,7 @@ public class DBUtils {
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, sin);
-		System.out.println(pstm);
+		//System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -156,7 +156,7 @@ public class DBUtils {
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, sin);
-		System.out.println(pstm);
+		//System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -187,7 +187,7 @@ public class DBUtils {
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, sin);
-		System.out.println(pstm);
+		//System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -212,7 +212,7 @@ public class DBUtils {
 		path.execute();
 
 		String sql = "SELECT * FROM hotel WHERE hotel_address ~* '" + address + "';";
-		System.out.println(sql);
+		//System.out.println(sql);
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		// pstm.setString(1, address);
 		ResultSet rs = pstm.executeQuery();
@@ -255,10 +255,10 @@ public class DBUtils {
 				+ "and hotel_id=?)";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
-		pstm.setDate(1, realDate);
-		pstm.setString(1, hotel_id);
-		pstm.setDate(1, realDate);
-		pstm.setString(1, hotel_id);
+		pstm.setDate(2, realDate);
+		pstm.setString(3, hotel_id);
+		pstm.setDate(4, realDate);
+		pstm.setString(5, hotel_id);
 		ResultSet rs = pstm.executeQuery();
 
 		int i = 0;
