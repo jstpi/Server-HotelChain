@@ -7,12 +7,14 @@ import java.sql.SQLException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import hotelchain.beans.Book;
 import hotelchain.beans.Chain;
 import hotelchain.beans.Chain_admin;
 import hotelchain.beans.Employee;
 import hotelchain.beans.Hotel;
 import hotelchain.beans.Product;
 import hotelchain.beans.Room;
+import hotelchain.beans.Room_book;
 import hotelchain.beans.UserAccount;
 import java.sql.Date;
 
@@ -247,11 +249,10 @@ public class DBUtils {
 
 		String sql = "(select * from room where hotel_id=?) Except\r\n"
 				+ "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable"
-				+ " from room Natural join room_book\r\n"
-				+ "Natural join book where check_in=? and hotel_id=?)\r\n" + "Except\r\n"
-				+ "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable\r\n"
-				+ " from room \r\n" + "Natural join room_rent\r\n"
-				+ "Natural join rent where check_in=? \r\n" + "and hotel_id=?)";
+				+ " from room Natural join room_book\r\n" + "Natural join book where check_in=? and hotel_id=?)\r\n"
+				+ "Except\r\n" + "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable\r\n"
+				+ " from room \r\n" + "Natural join room_rent\r\n" + "Natural join rent where check_in=? \r\n"
+				+ "and hotel_id=?)";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
 		pstm.setDate(1, realDate);
@@ -357,8 +358,6 @@ public class DBUtils {
 		pstm.setString(5, pwd);
 		pstm.setString(6, email);
 
-		System.out.println(pstm);
-
 		pstm.executeUpdate();
 
 	}
@@ -408,40 +407,49 @@ public class DBUtils {
 		return null;
 	}
 
-	// sample update
-	public static void updateProduct(Connection conn, Product product) throws SQLException {
-		String sql = "Update Product set Name =?, Price=? where Code=? ";
+	// create the book in the DB
+	public static void createBook(Connection conn, Book book) throws SQLException {
 
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		Date date = Date.valueOf(book.getBook_date());
+		Date check_in = Date.valueOf(book.getCheck_in());
+		Date check_out = Date.valueOf(book.getCheck_out());
+		// INSERT book in the DB
+		String sql = "INSERT INTO book (book_date, sin, check_in, check_out, is_cancelled) VALUES(?,?,?,?,?);";
 		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setDate(1, date);
+		pstm.setString(2, book.getSin());
+		pstm.setDate(3, check_in);
+		pstm.setDate(4, check_out);
+		pstm.setBoolean(5, book.isIs_cancelled());
 
-		pstm.setString(1, product.getName());
-		pstm.setFloat(2, product.getPrice());
-		pstm.setString(3, product.getCode());
 		pstm.executeUpdate();
+
 	}
 
-	// sample insert
-	public static void insertProduct(Connection conn, Product product) throws SQLException {
-		String sql = "Insert into Product(Code, Name,Price) values (?,?,?)";
+	// create the room_book in the DB
+	public static void createRoomBook(Connection conn, Room_book room_book) throws SQLException {
 
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		Date date = Date.valueOf(room_book.getBook_date());
+
+		// INSERT room book in the DB
+		String sql = "INSERT INTO room_book (Book_date, sin, room_number, hotel_id, chain_name) VALUES(?,?,?,?,?);";
 		PreparedStatement pstm = conn.prepareStatement(sql);
-
-		pstm.setString(1, product.getCode());
-		pstm.setString(2, product.getName());
-		pstm.setFloat(3, product.getPrice());
+		pstm.setDate(1, date);
+		pstm.setString(2, room_book.getSin());
+		pstm.setInt(3, room_book.getRoom_number());
+		pstm.setString(4, room_book.getHotel_id());
+		pstm.setString(5, room_book.getChain_name());
 
 		pstm.executeUpdate();
-	}
 
-	// sample delete
-	public static void deleteProduct(Connection conn, String code) throws SQLException {
-		String sql = "Delete From Product where Code= ?";
-
-		PreparedStatement pstm = conn.prepareStatement(sql);
-
-		pstm.setString(1, code);
-
-		pstm.executeUpdate();
 	}
 
 }

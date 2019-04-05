@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,22 +14,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import hotelchain.beans.Book;
 import hotelchain.beans.Chain_admin;
 import hotelchain.beans.Employee;
 import hotelchain.beans.Hotel;
+import hotelchain.beans.Room_book;
 import hotelchain.beans.UserAccount;
 import hotelchain.utils.DBUtils;
 import hotelchain.utils.MyUtils;
+import hotelchain.utils.ValidateJWTUtils;
 import hotelchain.response.mod.LoginResponse;
 import hotelchain.response.mod.JWTResponse;
 
 import com.google.gson.*;
 
-@WebServlet(urlPatterns = { "/searchHotel" })
-public class SearchHotelServlet extends HttpServlet {
+@WebServlet(urlPatterns = { "/bookRoom" })
+public class BookRoomServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	public SearchHotelServlet() {
+	public BookRoomServlet() {
 		super();
 	}
 
@@ -46,45 +51,46 @@ public class SearchHotelServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 
+		String role = ValidateJWTUtils.role(request);
+		String sin = ValidateJWTUtils.validate(request, role);
+
 		Gson g = new Gson();
-		Hotel hotel = new Hotel(null, null, 1, null, null, 1);
+		Book book = new Book(null, null, null, null, false);
+		Room_book room_book = new Room_book(null, null,1,null,null);
 
 		try {
-			hotel = g.fromJson(jb.toString(), Hotel.class);
+			book = g.fromJson(jb.toString(), Book.class);
+			room_book = g.fromJson(jb.toString(), Room_book.class);
 		} catch (JsonSyntaxException e) {
 			e.printStackTrace();
 		}
 
+		// date:year-month-day
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();
+		book.setBook_date(dateFormat.format(date));
+		book.setSin(sin);
+		room_book.setBook_date(dateFormat.format(date));
+		room_book.setSin(sin);
+
 		boolean hasError = false;
 		String errorString = null;
-		Hotel[] hotelArray = null;
 
-		if (hotel.getHotel_address() == null || hotel.getHotel_address().length() == 0) {
-			hasError = true;
-			errorString = "City required!";
-		} else {
-			Connection conn = MyUtils.getStoredConnection(request);
-			try {
-				// Find the hotels in the DB.
-				hotelArray = DBUtils.findHotel(conn, hotel.getHotel_address());
-				float minPrice;
-				Integer[] capacities;
-				for (int i=0;i<hotelArray.length;i++) {
-					minPrice=DBUtils.findMinPrice(conn, hotelArray[i].getHotel_id());
-					hotelArray[i].setMinPrice(minPrice);
-					capacities=DBUtils.findHotelCapacities(conn, hotelArray[i].getHotel_id());
-					hotelArray[i].setCapacities(capacities);
-				}
 
-			} catch (SQLException e) {
-				e.printStackTrace();
+		Connection conn = MyUtils.getStoredConnection(request);
+		try {
+			// Creates the book in the DB
+			DBUtils.createBook(conn, book);
+			//create the room_book
+			DBUtils.createRoomBook(conn, room_book);
 
-			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+
 		}
-		
 
 		response.setContentType("application/json");
-		String json = new Gson().toJson(hotelArray);
+		String json = new Gson().toJson(book);
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(json);
 

@@ -2,27 +2,27 @@ package hotelchain.beans;
 
 public class Room_book {
 
-	private String rent_date;
+	private String book_date;
 	private String sin;
 	private int room_number;
 	private String hotel_id;
 	private String chain_name;
 	
-	public Room_book(String rent_date, String sin, int room_number, String hotel_id, String chain_name) {
+	public Room_book(String book_date, String sin, int room_number, String hotel_id, String chain_name) {
 		
-		this.setRent_date(rent_date);
+		this.setBook_date(book_date);
 		this.setSin(sin);
 		this.setRoom_number(room_number);
 		this.setHotel_id(hotel_id);
 		this.setChain_name(chain_name);
 	}
 
-	public String getRent_date() {
-		return rent_date;
+	public String getBook_date() {
+		return book_date;
 	}
 
-	public void setRent_date(String rent_date) {
-		this.rent_date = rent_date;
+	public void setBook_date(String book_date) {
+		this.book_date = book_date;
 	}
 
 	public String getSin() {
