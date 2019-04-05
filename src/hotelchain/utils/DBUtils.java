@@ -479,6 +479,11 @@ public class DBUtils {
 		pstm.setBoolean(7, room.isIs_extendable());
 
 		pstm.executeUpdate();
+		
+		//increment number of rooms in hotel
+		PreparedStatement increment = conn.prepareStatement("UPDATE hotel SET number_of_rooms=number_of_rooms+1 where hotel_id=?;");
+		increment.setString(1, room.getHotel_id());
+		increment.executeUpdate();
 
 	}
 
