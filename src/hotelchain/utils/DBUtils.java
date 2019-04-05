@@ -65,7 +65,7 @@ public class DBUtils {
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, email);
 		pstm.setString(2, password);
-		//System.out.println(pstm);
+		// System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -99,7 +99,7 @@ public class DBUtils {
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, email);
 		pstm.setString(2, password);
-		//System.out.println(pstm);
+		// System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -128,7 +128,7 @@ public class DBUtils {
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, sin);
-		//System.out.println(pstm);
+		// System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -156,7 +156,7 @@ public class DBUtils {
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, sin);
-		//System.out.println(pstm);
+		// System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -187,7 +187,7 @@ public class DBUtils {
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, sin);
-		//System.out.println(pstm);
+		// System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -212,7 +212,7 @@ public class DBUtils {
 		path.execute();
 
 		String sql = "SELECT * FROM hotel WHERE hotel_address ~* '" + address + "';";
-		//System.out.println(sql);
+		// System.out.println(sql);
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		// pstm.setString(1, address);
 		ResultSet rs = pstm.executeQuery();
@@ -447,6 +447,36 @@ public class DBUtils {
 		pstm.setInt(3, room_book.getRoom_number());
 		pstm.setString(4, room_book.getHotel_id());
 		pstm.setString(5, room_book.getChain_name());
+
+		pstm.executeUpdate();
+
+	}
+
+	// create the room_book in the DB
+	public static void createRoom(Connection conn, Room room) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		//Find room number
+		PreparedStatement number = conn.prepareStatement("select max(room_number) from room where hotel_id=?;");
+		number.setString(1, room.getHotel_id());
+		ResultSet rs= number.executeQuery();
+		rs.next();
+		int roomNumber = rs.getInt("max");
+				
+		// INSERT room in the DB
+		String sql = "INSERT INTO room (room_number,hotel_id,chain_name,price,capacity,view_type,is_extendable) \r\n" + 
+				"VALUES(?,?,?,?,?,?,?);";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, roomNumber);
+		pstm.setString(2, room.getHotel_id());
+		pstm.setString(3, room.getChain_name());
+		pstm.setFloat(4, room.getPrice());
+		pstm.setInt(5, room.getCapacity());
+		pstm.setString(6, room.getView_type());
+		pstm.setBoolean(7, room.isIs_extendable());
 
 		pstm.executeUpdate();
 
