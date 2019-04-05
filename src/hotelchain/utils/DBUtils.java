@@ -338,6 +338,43 @@ public class DBUtils {
 		return null;
 	}
 
+	// find chain with admin sin
+	public static Hotel[] findAdminHotels(Connection conn, String sin) throws SQLException {
+
+		// Accessing the right search path
+				PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+				path.execute();
+
+
+				String sql = "select * from hotel where chain_name=(select chain_name from chain_admin where sin=?)";
+				PreparedStatement pstm = conn.prepareStatement(sql);
+				pstm.setString(1, sin);
+
+				ResultSet rs = pstm.executeQuery();
+
+				int i = 0;
+
+				Deque<Hotel> hotelStack = new ArrayDeque<Hotel>();
+				while (rs.next()) {
+
+					Hotel hotel = new Hotel(null, null, 1, null, null, 1);
+					hotel.setChain_name(rs.getString("chain_name"));
+					hotel.setHotel_id(rs.getString("hotel_id"));
+					hotel.setHotel_address(rs.getString("hotel_address"));
+					hotel.setContact_email_address(rs.getString("contact_email_address"));
+					hotel.setNumber_of_rooms(rs.getInt("number_of_rooms"));
+					hotel.setRating(rs.getFloat("chain_name"));
+
+					hotelStack.push(hotel);
+
+				}
+				if (!hotelStack.isEmpty()) {
+					Hotel[] hotel = (Hotel[]) hotelStack.toArray(new Hotel[hotelStack.size()]);
+					return hotel;
+				}
+				return null;
+	}
+
 	// create new customer
 	public static void createCustomer(Connection conn, String sin, String email, String pwd, String address,
 			String name, String date) throws SQLException {
@@ -480,12 +517,6 @@ public class DBUtils {
 
 		pstm.executeUpdate();
 
-		// increment number of rooms in hotel
-		PreparedStatement increment = conn
-				.prepareStatement("UPDATE hotel SET number_of_rooms=number_of_rooms+1 where hotel_id=?;");
-		increment.setString(1, room.getHotel_id());
-		increment.executeUpdate();
-
 	}
 
 	// create the room_book in the DB
@@ -525,12 +556,6 @@ public class DBUtils {
 		pstm.setFloat(6, hotel.getRating());
 
 		pstm.executeUpdate();
-
-		// increment number of rooms in hotel
-		PreparedStatement increment = conn
-				.prepareStatement("UPDATE chain SET number_of_hotels=number_of_hotels+1 where chain_name=?;");
-		increment.setString(1, hotel.getChain_name());
-		increment.executeUpdate();
 
 	}
 
