@@ -306,7 +306,7 @@ public class DBUtils {
 			hotel.setHotel_address(rs.getString("hotel_address"));
 			hotel.setContact_email_address(rs.getString("contact_email_address"));
 			hotel.setNumber_of_rooms(rs.getInt("number_of_rooms"));
-			hotel.setRating(rs.getFloat("chain_name"));
+			hotel.setRating(rs.getFloat("rating"));
 
 			return hotel;
 		}
@@ -363,7 +363,7 @@ public class DBUtils {
 					hotel.setHotel_address(rs.getString("hotel_address"));
 					hotel.setContact_email_address(rs.getString("contact_email_address"));
 					hotel.setNumber_of_rooms(rs.getInt("number_of_rooms"));
-					hotel.setRating(rs.getFloat("chain_name"));
+					hotel.setRating(rs.getFloat("rating"));
 
 					hotelStack.push(hotel);
 
