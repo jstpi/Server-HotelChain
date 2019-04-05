@@ -459,16 +459,16 @@ public class DBUtils {
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
-		//Find room number
+		// Find room number
 		PreparedStatement number = conn.prepareStatement("select max(room_number) from room where hotel_id=?;");
 		number.setString(1, room.getHotel_id());
-		ResultSet rs= number.executeQuery();
+		ResultSet rs = number.executeQuery();
 		rs.next();
 		int roomNumber = rs.getInt("max");
-				
+
 		// INSERT room in the DB
-		String sql = "INSERT INTO room (room_number,hotel_id,chain_name,price,capacity,view_type,is_extendable) \r\n" + 
-				"VALUES(?,?,?,?,?,?,?);";
+		String sql = "INSERT INTO room (room_number,hotel_id,chain_name,price,capacity,view_type,is_extendable) \r\n"
+				+ "VALUES(?,?,?,?,?,?,?);";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setInt(1, roomNumber);
 		pstm.setString(2, room.getHotel_id());
@@ -479,10 +479,57 @@ public class DBUtils {
 		pstm.setBoolean(7, room.isIs_extendable());
 
 		pstm.executeUpdate();
-		
-		//increment number of rooms in hotel
-		PreparedStatement increment = conn.prepareStatement("UPDATE hotel SET number_of_rooms=number_of_rooms+1 where hotel_id=?;");
+
+		// increment number of rooms in hotel
+		PreparedStatement increment = conn
+				.prepareStatement("UPDATE hotel SET number_of_rooms=number_of_rooms+1 where hotel_id=?;");
 		increment.setString(1, room.getHotel_id());
+		increment.executeUpdate();
+
+	}
+
+	// create the room_book in the DB
+	public static void createHotel(Connection conn, Hotel hotel) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		// Find room number
+		PreparedStatement hotelID = conn.prepareStatement("select max(hotel_id) from hotel;");
+		ResultSet rs = hotelID.executeQuery();
+		rs.next();
+		String ID = rs.getString("max");
+
+		if (ID.charAt(5) == '9') {
+			char char1 = ID.charAt(4);
+			char1++;
+			String var = char1 + "1";
+			ID = ID.substring(0, ID.length() - 2) + var;
+
+		} else {
+			int i = Character.getNumericValue(ID.charAt(5));
+			i++;
+			ID = ID.substring(0, ID.length() - 1) + i;
+		}
+
+		// INSERT room in the DB
+		String sql = "INSERT INTO hotel (hotel_id, chain_name, number_of_rooms, hotel_address,contact_email_address,rating) \r\n"
+				+ "VALUES(?,?,?,?,?,?);";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, ID);
+		pstm.setString(2, hotel.getChain_name());
+		pstm.setInt(3, hotel.getNumber_of_rooms());
+		pstm.setString(4, hotel.getHotel_address());
+		pstm.setString(5, hotel.getContact_email_address());
+		pstm.setFloat(6, hotel.getRating());
+
+		pstm.executeUpdate();
+
+		// increment number of rooms in hotel
+		PreparedStatement increment = conn
+				.prepareStatement("UPDATE chain SET number_of_hotels=number_of_hotels+1 where chain_name=?;");
+		increment.setString(1, hotel.getChain_name());
 		increment.executeUpdate();
 
 	}
