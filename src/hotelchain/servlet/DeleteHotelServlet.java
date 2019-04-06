@@ -27,7 +27,7 @@ import com.google.gson.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
 
-@WebServlet(urlPatterns = { "/deleteRoom" })
+@WebServlet(urlPatterns = { "/deleteHotel" })
 public class DeleteHotelServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
