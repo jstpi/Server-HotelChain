@@ -238,35 +238,35 @@ public class DBUtils {
 		}
 		return null;
 	}
-	
+
 	// find hotel with part of address
-		public static Hotel findHotelWithID(Connection conn, String hotel_id) throws SQLException {
+	public static Hotel findHotelWithID(Connection conn, String hotel_id) throws SQLException {
 
-			// Accessing the right search path
-			PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
-			path.execute();
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
 
-			String sql = "SELECT * FROM hotel WHERE hotel_id=?;";
-			// System.out.println(sql);
-			PreparedStatement pstm = conn.prepareStatement(sql);
-			pstm.setString(1, hotel_id);
-			ResultSet rs = pstm.executeQuery();
-			
-			if (rs.next()) {
+		String sql = "SELECT * FROM hotel WHERE hotel_id=?;";
+		// System.out.println(sql);
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, hotel_id);
+		ResultSet rs = pstm.executeQuery();
 
-				Hotel hotel = new Hotel(null, null, 1, null, null, 1);
-				hotel.setChain_name(rs.getString("chain_name"));
-				hotel.setHotel_id(rs.getString("hotel_id"));
-				hotel.setHotel_address(rs.getString("hotel_address"));
-				hotel.setContact_email_address(rs.getString("contact_email_address"));
-				hotel.setNumber_of_rooms(rs.getInt("number_of_rooms"));
-				hotel.setRating(rs.getFloat("rating"));
-				
-				return hotel;
-			}
+		if (rs.next()) {
 
-			return null;
+			Hotel hotel = new Hotel(null, null, 1, null, null, 1);
+			hotel.setChain_name(rs.getString("chain_name"));
+			hotel.setHotel_id(rs.getString("hotel_id"));
+			hotel.setHotel_address(rs.getString("hotel_address"));
+			hotel.setContact_email_address(rs.getString("contact_email_address"));
+			hotel.setNumber_of_rooms(rs.getInt("number_of_rooms"));
+			hotel.setRating(rs.getFloat("rating"));
+
+			return hotel;
 		}
+
+		return null;
+	}
 
 	// find rooms with hotel_id
 	public static Room[] findRooms(Connection conn, String hotel_id, String check_in) throws SQLException {
@@ -613,18 +613,16 @@ public class DBUtils {
 		path.execute();
 
 		// INSERT room in the DB
-		String sql = "delete from room where hotel_id=?;\r\n" + 
-				"delete from hotel where hotel_id=?;";
+		String sql = "delete from room where hotel_id=?;\r\n" + "delete from hotel where hotel_id=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel.getHotel_id());
 		pstm.setString(2, hotel.getHotel_id());
 
-
 		pstm.executeUpdate();
 
 	}
-	
-	//find bookings by hotel
+
+	// find bookings by hotel
 	public static Book[] findBookingByHotel(Connection conn, String hotel_id) throws SQLException {
 
 		// Accessing the right search path
@@ -636,12 +634,11 @@ public class DBUtils {
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
 
+		ResultSet rs = pstm.executeQuery();
 
-		ResultSet rs=pstm.executeQuery();
-		
 		Deque<Book> bookStack = new ArrayDeque<Book>();
 		while (rs.next()) {
-			Book book=new Book(null,null,null,null,false);
+			Book book = new Book(null, null, null, null, false);
 			book.setBook_date(rs.getDate("book_date").toString());
 			book.setSin(rs.getString("sin"));
 			book.setCheck_in(rs.getDate("check_in").toString());
@@ -657,39 +654,85 @@ public class DBUtils {
 		return null;
 
 	}
-	
-	//find bookings by hotel
-		public static Rent[] findRentByHotel(Connection conn, String hotel_id) throws SQLException {
 
-			// Accessing the right search path
-			PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
-			path.execute();
+	// find bookings by hotel
+	public static Rent[] findRentByHotel(Connection conn, String hotel_id) throws SQLException {
 
-			// findind the bookings by hotel_id
-			String sql = "Select * from rent where sin=(select sin from room_rent where hotel_id=?);";
-			PreparedStatement pstm = conn.prepareStatement(sql);
-			pstm.setString(1, hotel_id);
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
 
+		// findind the bookings by hotel_id
+		String sql = "Select * from rent where sin=(select sin from room_rent where hotel_id=?);";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, hotel_id);
 
-			ResultSet rs=pstm.executeQuery();
-			
-			Deque<Rent> rentStack = new ArrayDeque<Rent>();
-			while (rs.next()) {
-				Rent rent=new Rent(null,null,null,null);
-				rent.setRent_date(rs.getDate("rent_date").toString());
-				rent.setSin(rs.getString("sin"));
-				rent.setCheck_in(rs.getDate("check_in").toString());
-				rent.setCheck_out(rs.getDate("check_out").toString());
+		ResultSet rs = pstm.executeQuery();
 
-			}
-
-			if (!rentStack.isEmpty()) {
-				Rent[] rentArray = (Rent[]) rentStack.toArray(new Rent[rentStack.size()]);
-				return rentArray;
-			}
-
-			return null;
+		Deque<Rent> rentStack = new ArrayDeque<Rent>();
+		while (rs.next()) {
+			Rent rent = new Rent(null, null, null, null);
+			rent.setRent_date(rs.getDate("rent_date").toString());
+			rent.setSin(rs.getString("sin"));
+			rent.setCheck_in(rs.getDate("check_in").toString());
+			rent.setCheck_out(rs.getDate("check_out").toString());
 
 		}
+
+		if (!rentStack.isEmpty()) {
+			Rent[] rentArray = (Rent[]) rentStack.toArray(new Rent[rentStack.size()]);
+			return rentArray;
+		}
+
+		return null;
+
+	}
+
+	// Update hotel info
+	public static void updateHotel(Connection conn, Hotel hotel) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		// findind the bookings by hotel_id
+		String sql = "Update hotel \r\n" + 
+				"set hotel_address=?, \r\n" + 
+				"	contact_email_address=?,\r\n" + 
+				"	rating=?\r\n" + 
+				"where hotel_id=?;";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, hotel.getHotel_address());
+		pstm.setString(2, hotel.getContact_email_address());
+		pstm.setFloat(3, hotel.getRating());
+		pstm.setString(4, hotel.getHotel_id());
+
+		pstm.executeUpdate();
+
+	}
+	public static void updateRoom(Connection conn, Room room) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		// findind the bookings by hotel_id
+		String sql = "Update room set price=?,\r\n" + 
+				"capacity=?,\r\n" + 
+				"view_type=?,\r\n" + 
+				"is_extendable=?\r\n" + 
+				"where hotel_id=? and room_number=?;";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setFloat(1, room.getPrice());
+		pstm.setInt(2, room.getCapacity());
+		pstm.setString(3, room.getView_type());
+		pstm.setBoolean(4, room.isIs_extendable());
+		pstm.setString(5, room.getHotel_id());
+		pstm.setInt(6, room.getRoom_number());
+
+
+		pstm.executeUpdate();
+
+	}
 
 }
