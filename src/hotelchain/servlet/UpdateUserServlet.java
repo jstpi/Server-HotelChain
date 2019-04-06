@@ -71,7 +71,7 @@ public class UpdateUserServlet extends HttpServlet {
 			Connection conn = MyUtils.getStoredConnection(request);
 			try {
 				// Find the user in the DB.
-				if (role.contains("UserAccount")) {	
+				if (role.contains("Customer")) {	
 														
 					try {
 						user = g.fromJson(jb.toString(), UserAccount.class);
