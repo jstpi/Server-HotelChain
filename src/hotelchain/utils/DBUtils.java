@@ -268,7 +268,7 @@ public class DBUtils {
 		return null;
 	}
 
-	// find rooms with hotel_id
+	// find available rooms with hotel_id
 	public static Room[] findRooms(Connection conn, String hotel_id, String check_in) throws SQLException {
 
 		// Accessing the right search path
@@ -289,6 +289,43 @@ public class DBUtils {
 		pstm.setString(3, hotel_id);
 		pstm.setDate(4, realDate);
 		pstm.setString(5, hotel_id);
+		ResultSet rs = pstm.executeQuery();
+
+		int i = 0;
+
+		Deque<Room> roomStack = new ArrayDeque<Room>();
+		while (rs.next()) {
+
+			Room room = new Room(1, null, null, 1, 1, null, false);
+			room.setRoom_number(rs.getInt("room_number"));
+			room.setHotel_id(rs.getString("hotel_id"));
+			room.setChain_name(rs.getString("chain_name"));
+			room.setPrice(rs.getFloat("price"));
+			room.setCapacity(rs.getInt("capacity"));
+			room.setView_type(rs.getString("view_type"));
+			room.setIs_extendable(rs.getBoolean("is_extendable"));
+
+			roomStack.push(room);
+
+		}
+		if (!roomStack.isEmpty()) {
+			Room[] room = (Room[]) roomStack.toArray(new Room[roomStack.size()]);
+			return room;
+		}
+		return null;
+	}
+
+	// find rooms with hotel_id
+	public static Room[] findAllRooms(Connection conn, String hotel_id) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+
+		String sql = "(select * from room where hotel_id=?);";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, hotel_id);
 		ResultSet rs = pstm.executeQuery();
 
 		int i = 0;
@@ -696,11 +733,8 @@ public class DBUtils {
 		path.execute();
 
 		// findind the bookings by hotel_id
-		String sql = "Update hotel \r\n" + 
-				"set hotel_address=?, \r\n" + 
-				"	contact_email_address=?,\r\n" + 
-				"	rating=?\r\n" + 
-				"where hotel_id=?;";
+		String sql = "Update hotel \r\n" + "set hotel_address=?, \r\n" + "	contact_email_address=?,\r\n"
+				+ "	rating=?\r\n" + "where hotel_id=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel.getHotel_address());
 		pstm.setString(2, hotel.getContact_email_address());
@@ -710,6 +744,7 @@ public class DBUtils {
 		pstm.executeUpdate();
 
 	}
+
 	public static void updateRoom(Connection conn, Room room) throws SQLException {
 
 		// Accessing the right search path
@@ -717,11 +752,8 @@ public class DBUtils {
 		path.execute();
 
 		// findind the bookings by hotel_id
-		String sql = "Update room set price=?,\r\n" + 
-				"capacity=?,\r\n" + 
-				"view_type=?,\r\n" + 
-				"is_extendable=?\r\n" + 
-				"where hotel_id=? and room_number=?;";
+		String sql = "Update room set price=?,\r\n" + "capacity=?,\r\n" + "view_type=?,\r\n" + "is_extendable=?\r\n"
+				+ "where hotel_id=? and room_number=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setFloat(1, room.getPrice());
 		pstm.setInt(2, room.getCapacity());
@@ -729,7 +761,6 @@ public class DBUtils {
 		pstm.setBoolean(4, room.isIs_extendable());
 		pstm.setString(5, room.getHotel_id());
 		pstm.setInt(6, room.getRoom_number());
-
 
 		pstm.executeUpdate();
 
