@@ -28,7 +28,7 @@ import hotelchain.utils.ValidateJWTUtils;
 
 //web servlet to update the customer, employee or admin info
 
-@WebServlet(urlPatterns = { "/associatedHotel" })
+@WebServlet(urlPatterns = { "/updateUser" })
 public class UpdateUserServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
