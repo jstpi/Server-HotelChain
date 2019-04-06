@@ -26,13 +26,13 @@ import hotelchain.utils.DBUtils;
 import hotelchain.utils.MyUtils;
 import hotelchain.utils.ValidateJWTUtils;
 
-//web servlet to find the associated hotel for an employee or to find the associated chain for an admin
+//web servlet to update the customer, employee or admin info
 
 @WebServlet(urlPatterns = { "/associatedHotel" })
-public class AssociatedHotelServlet extends HttpServlet {
+public class UpdateUserServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	public AssociatedHotelServlet() {
+	public UpdateUserServlet() {
 		super();
 	}
 
@@ -40,9 +40,19 @@ public class AssociatedHotelServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
+		StringBuffer jb = new StringBuffer();
+		String line = null;
+		try {
+			BufferedReader reader = request.getReader();
+			while ((line = reader.readLine()) != null)
+				jb.append(line);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		String role = ValidateJWTUtils.role(request);
 		String sin = ValidateJWTUtils.validate(request, role);
-		
+		Gson g = new Gson();
 
 		UserAccount user = new UserAccount(null, null, null, null, null, null);
 		Employee employee = new Employee(null, null, null, null, null, null, null, null);
@@ -61,19 +71,46 @@ public class AssociatedHotelServlet extends HttpServlet {
 			Connection conn = MyUtils.getStoredConnection(request);
 			try {
 				// Find the user in the DB.
-				if (role.contains("Employee")) {
-					hotel = DBUtils.findEmployeeHotel(conn, sin);
+				if (role.contains("UserAccount")) {	
+														
+					try {
+						user = g.fromJson(jb.toString(), UserAccount.class);
+					} catch (JsonSyntaxException e) {
+						e.printStackTrace();
+					}
+					
+					DBUtils.updateCustomer(conn, user);
 					
 					response.setContentType("application/json");
-					String json = new Gson().toJson(hotel);
+					String json = new Gson().toJson(user);
+					response.setCharacterEncoding("UTF-8");
+					response.getWriter().write(json);
+				}
+				else if (role.contains("Employee")) {
+					try {
+						employee = g.fromJson(jb.toString(), Employee.class);
+					} catch (JsonSyntaxException e) {
+						e.printStackTrace();
+					}
+					
+					DBUtils.updateEmployee(conn, employee);
+					
+					response.setContentType("application/json");
+					String json = new Gson().toJson(employee);
 					response.setCharacterEncoding("UTF-8");
 					response.getWriter().write(json);
 				}
 				else if (role.contains("Admin")){
-					chain = DBUtils.findAdminChain(conn, sin);
+					try {
+						admin = g.fromJson(jb.toString(), Chain_admin.class);
+					} catch (JsonSyntaxException e) {
+						e.printStackTrace();
+					}
+					
+					DBUtils.updateAdmin(conn, admin);
 					
 					response.setContentType("application/json");
-					String json = new Gson().toJson(chain);
+					String json = new Gson().toJson(admin);
 					response.setCharacterEncoding("UTF-8");
 					response.getWriter().write(json);
 				}

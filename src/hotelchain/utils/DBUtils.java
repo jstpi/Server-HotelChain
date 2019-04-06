@@ -322,7 +322,6 @@ public class DBUtils {
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
-
 		String sql = "(select * from room where hotel_id=?);";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
@@ -635,7 +634,7 @@ public class DBUtils {
 
 		// INSERT room in the DB
 		String sql = "delete from room_rent where room_number=? and hotel_id=?; delete from room_book where room_number=? and hotel_id=?;"
-		+"delete from room where room_number=? and hotel_id=?;";
+				+ "delete from room where room_number=? and hotel_id=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setInt(1, room.getRoom_number());
 		pstm.setString(2, room.getHotel_id());
@@ -656,8 +655,8 @@ public class DBUtils {
 		path.execute();
 
 		// INSERT room in the DB
-		String sql = "delete from room_rent where hotel_id=?; delete from room_book where hotel_id=?;"+ 
-				"delete from room where hotel_id=?; delete from employee where hotel_id=?;"
+		String sql = "delete from room_rent where hotel_id=?; delete from room_book where hotel_id=?;"
+				+ "delete from room where hotel_id=?; delete from employee where hotel_id=?;"
 				+ "delete from hotel where hotel_id=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel.getHotel_id());
@@ -776,7 +775,7 @@ public class DBUtils {
 		pstm.executeUpdate();
 
 	}
-	
+
 	public static void updateCustomer(Connection conn, UserAccount user) throws SQLException {
 
 		// Accessing the right search path
@@ -784,20 +783,18 @@ public class DBUtils {
 		path.execute();
 
 		// findind the bookings by hotel_id
-		String sql = "Update room set price=?,\r\n" + "capacity=?,\r\n" + "view_type=?,\r\n" + "is_extendable=?\r\n"
-				+ "where hotel_id=? and room_number=?;";
+		String sql = "Update customer set full_name=?, address=?, password=?, email=?" + "where sin=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setFloat(1, room.getPrice());
-		pstm.setInt(2, room.getCapacity());
-		pstm.setString(3, room.getView_type());
-		pstm.setBoolean(4, room.isIs_extendable());
-		pstm.setString(5, room.getHotel_id());
-		pstm.setInt(6, room.getRoom_number());
+		pstm.setString(1, user.getFull_name());
+		pstm.setString(2, user.getAddress());
+		pstm.setString(3, user.getPassword());
+		pstm.setString(4, user.getEmail());
+		pstm.setString(5, user.getSin());
 
 		pstm.executeUpdate();
 
 	}
-	
+
 	public static void updateEmployee(Connection conn, Employee employee) throws SQLException {
 
 		// Accessing the right search path
@@ -805,20 +802,18 @@ public class DBUtils {
 		path.execute();
 
 		// findind the bookings by hotel_id
-		String sql = "Update room set price=?,\r\n" + "capacity=?,\r\n" + "view_type=?,\r\n" + "is_extendable=?\r\n"
-				+ "where hotel_id=? and room_number=?;";
+		String sql = "Update Employee set full_name=?, address=?, password=?, email=?" + "where sin=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setFloat(1, room.getPrice());
-		pstm.setInt(2, room.getCapacity());
-		pstm.setString(3, room.getView_type());
-		pstm.setBoolean(4, room.isIs_extendable());
-		pstm.setString(5, room.getHotel_id());
-		pstm.setInt(6, room.getRoom_number());
+		pstm.setString(1, employee.getFull_name());
+		pstm.setString(2, employee.getAddress());
+		pstm.setString(3, employee.getPassword());
+		pstm.setString(4, employee.getEmail());
+		pstm.setString(5, employee.getSin());
 
 		pstm.executeUpdate();
 
 	}
-	
+
 	public static void updateAdmin(Connection conn, Chain_admin admin) throws SQLException {
 
 		// Accessing the right search path
@@ -826,15 +821,12 @@ public class DBUtils {
 		path.execute();
 
 		// findind the bookings by hotel_id
-		String sql = "Update room set price=?,\r\n" + "capacity=?,\r\n" + "view_type=?,\r\n" + "is_extendable=?\r\n"
-				+ "where hotel_id=? and room_number=?;";
+		String sql = "Update chain_admin set full_name=?, password=?, email=?" + "where sin=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setFloat(1, room.getPrice());
-		pstm.setInt(2, room.getCapacity());
-		pstm.setString(3, room.getView_type());
-		pstm.setBoolean(4, room.isIs_extendable());
-		pstm.setString(5, room.getHotel_id());
-		pstm.setInt(6, room.getRoom_number());
+		pstm.setString(1, admin.getFull_name());
+		pstm.setString(2, admin.getPassword());
+		pstm.setString(3, admin.getEmail());
+		pstm.setString(4, admin.getSin());
 
 		pstm.executeUpdate();
 
