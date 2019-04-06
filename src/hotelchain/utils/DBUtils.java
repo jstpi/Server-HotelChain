@@ -279,9 +279,9 @@ public class DBUtils {
 
 		String sql = "(select * from room where hotel_id=?) Except\r\n"
 				+ "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable"
-				+ " from room Natural join room_book\r\n" + "Natural join book where check_in=? and hotel_id=?)\r\n"
+				+ " from room Natural join room_book\r\n" + "Natural join book where check_out>? and hotel_id=?)\r\n"
 				+ "Except\r\n" + "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable\r\n"
-				+ " from room \r\n" + "Natural join room_rent\r\n" + "Natural join rent where check_in=? \r\n"
+				+ " from room \r\n" + "Natural join room_rent\r\n" + "Natural join rent where check_out>? \r\n"
 				+ "and hotel_id=?)";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
