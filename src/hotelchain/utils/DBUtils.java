@@ -650,10 +650,13 @@ public class DBUtils {
 		path.execute();
 
 		// INSERT room in the DB
-		String sql = "delete from room where hotel_id=?;\r\n" + "delete from hotel where hotel_id=?;";
+		String sql = "delete from room_rent where hotel_id=?; delete from room_book where hotel_id=?;"+ 
+				"delete from room where hotel_id=?;\r\n"+ "delete from hotel where hotel_id=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel.getHotel_id());
 		pstm.setString(2, hotel.getHotel_id());
+		pstm.setString(3, hotel.getHotel_id());
+		pstm.setString(4, hotel.getHotel_id());
 
 		pstm.executeUpdate();
 
