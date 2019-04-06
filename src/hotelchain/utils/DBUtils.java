@@ -677,8 +677,8 @@ public class DBUtils {
 		path.execute();
 
 		// findind the bookings by hotel_id
-		String sql = "select room_number,hotel_id,chain_name,price,capacity,view_type, is_extendable, check_in, check_out from room natural join room_book natural join book \r\n" + 
-				"where check_out > current_date and hotel_id=?;";
+		String sql = "select room_number,hotel_id,chain_name,price,capacity,view_type, is_extendable, check_in, check_out from room natural join room_book natural join book \r\n"
+				+ "where check_out > current_date and hotel_id=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
 
@@ -718,9 +718,8 @@ public class DBUtils {
 		path.execute();
 
 		// findind the bookings by hotel_id
-		String sql = "select room_number,hotel_id,chain_name,price,capacity,view_type, is_extendable, check_in, check_out from room \r\n" + 
-				"natural join room_rent natural join rent \r\n" + 
-				"where check_out > current_date and hotel_id=?";
+		String sql = "select room_number,hotel_id,chain_name,price,capacity,view_type, is_extendable, check_in, check_out from room \r\n"
+				+ "natural join room_rent natural join rent \r\n" + "where check_out > current_date and hotel_id=?";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
 
@@ -847,6 +846,86 @@ public class DBUtils {
 
 		pstm.executeUpdate();
 
+	}
+
+	// find employee by hotel
+	public static Employee[] findEmployeeByHotel(Connection conn, String hotel_id) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		// findind the bookings by hotel_id
+		String sql = "select * from employee where hotel_id=?;";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, hotel_id);
+
+		ResultSet rs = pstm.executeQuery();
+
+		Deque<Employee> empStack = new ArrayDeque<Employee>();
+		while (rs.next()) {
+
+			Employee emp = new Employee(null, null, null, null, null, null, null, null);
+			emp.setEmployee_id(rs.getString("employee_id"));
+			emp.setHotel_id(rs.getString("hotel_id"));
+			emp.setChain_name(rs.getString("chain_name"));
+			emp.setSin(rs.getString("sin"));
+			emp.setFull_name(rs.getString("full_name"));
+			emp.setAddress(rs.getString("address"));
+			emp.setPassword(rs.getString("password"));
+			emp.setEmail(rs.getString("email"));
+
+			empStack.push(emp);
+
+		}
+		if (!empStack.isEmpty()) {
+			Employee[] empArray = (Employee[]) empStack.toArray(new Employee[empStack.size()]);
+			return empArray;
+		}
+
+		return null;
+
+	}
+
+	// delete employee by hotel
+	public static void deleteEmployeeByHotel(Connection conn, String sin) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		// findind the bookings by hotel_id
+		String sql = "delete from employee where sin=?;";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, sin);
+
+		pstm.executeUpdate();
+
+	}
+
+	// add employee by hotel
+	public static void addEmployeeByHotel(Connection conn, Employee emp) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		// findind the bookings by hotel_id
+		String sql = "insert into employee (employee_id,hotel_id,chain_name,sin,full_name,address,password,email)"
+				+ "values(?,?,?,?,?,?,?,?);";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, emp.getEmployee_id());
+		pstm.setString(2, emp.getHotel_id());
+		pstm.setString(3, emp.getChain_name());
+		pstm.setString(4, emp.getSin());
+		pstm.setString(5, emp.getFull_name());
+		pstm.setString(6, emp.getAddress());
+		pstm.setString(7, emp.getPassword());
+		pstm.setString(8, emp.getEmail());
+
+		pstm.executeUpdate();
+
+	
 	}
 
 }
