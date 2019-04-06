@@ -13,6 +13,7 @@ import hotelchain.beans.Chain_admin;
 import hotelchain.beans.Employee;
 import hotelchain.beans.Hotel;
 import hotelchain.beans.Product;
+import hotelchain.beans.Rent;
 import hotelchain.beans.Room;
 import hotelchain.beans.Room_book;
 import hotelchain.beans.UserAccount;
@@ -643,15 +644,52 @@ public class DBUtils {
 			Book book=new Book(null,null,null,null,false);
 			book.setBook_date(rs.getDate("book_date").toString());
 			book.setSin(rs.getString("sin"));
+			book.setCheck_in(rs.getDate("check_in").toString());
+			book.setCheck_out(rs.getDate("check_out").toString());
+			book.setIs_cancelled(rs.getBoolean("is_cancelled"));
 		}
 
-//		if (!capacityStack.isEmpty()) {
-//			Integer[] i = (Integer[]) capacityStack.toArray(new Integer[capacityStack.size()]);
-//			return i;
-//		}
+		if (!bookStack.isEmpty()) {
+			Book[] bookArray = (Book[]) bookStack.toArray(new Book[bookStack.size()]);
+			return bookArray;
+		}
 
 		return null;
 
 	}
+	
+	//find bookings by hotel
+		public static Rent[] findRentByHotel(Connection conn, String hotel_id) throws SQLException {
+
+			// Accessing the right search path
+			PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+			path.execute();
+
+			// findind the bookings by hotel_id
+			String sql = "Select * from rent where sin=(select sin from room_rent where hotel_id=?);";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setString(1, hotel_id);
+
+
+			ResultSet rs=pstm.executeQuery();
+			
+			Deque<Rent> rentStack = new ArrayDeque<Rent>();
+			while (rs.next()) {
+				Rent rent=new Rent(null,null,null,null);
+				rent.setRent_date(rs.getDate("rent_date").toString());
+				rent.setSin(rs.getString("sin"));
+				rent.setCheck_in(rs.getDate("check_in").toString());
+				rent.setCheck_out(rs.getDate("check_out").toString());
+
+			}
+
+			if (!rentStack.isEmpty()) {
+				Rent[] rentArray = (Rent[]) rentStack.toArray(new Rent[rentStack.size()]);
+				return rentArray;
+			}
+
+			return null;
+
+		}
 
 }
