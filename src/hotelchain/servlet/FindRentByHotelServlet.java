@@ -17,6 +17,7 @@ import hotelchain.beans.Chain_admin;
 import hotelchain.beans.Employee;
 import hotelchain.beans.Hotel;
 import hotelchain.beans.Rent;
+import hotelchain.beans.Room;
 import hotelchain.beans.UserAccount;
 import hotelchain.utils.DBUtils;
 import hotelchain.utils.MyUtils;
@@ -59,12 +60,12 @@ public class FindRentByHotelServlet extends HttpServlet {
 
 		boolean hasError = false;
 		String errorString = null;
-		Rent[] rent=null;
+		Room[] room=null;
 
 		Connection conn = MyUtils.getStoredConnection(request);
 		try {
 			// Find the hotels in the DB.
-			rent = DBUtils.findRentByHotel(conn, hotel.getHotel_id());
+			room = DBUtils.findRentByHotel(conn, hotel.getHotel_id());
 			
 
 		} catch (SQLException e) {
@@ -73,7 +74,7 @@ public class FindRentByHotelServlet extends HttpServlet {
 		}
 
 		response.setContentType("application/json");
-		String json = new Gson().toJson(rent);
+		String json = new Gson().toJson(room);
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(json);
 

@@ -670,65 +670,82 @@ public class DBUtils {
 	}
 
 	// find bookings by hotel
-	public static Book[] findBookingByHotel(Connection conn, String hotel_id) throws SQLException {
+	public static Room[] findBookingByHotel(Connection conn, String hotel_id) throws SQLException {
 
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		// findind the bookings by hotel_id
-		String sql = "select * from book where sin=(select sin from room_book where hotel_id=?);";
+		String sql = "select room_number,hotel_id,chain_name,price,capacity,view_type, is_extendable, check_in, check_out from room natural join room_book natural join book \r\n" + 
+				"where check_out > current_date and hotel_id=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
 
 		ResultSet rs = pstm.executeQuery();
 
-		Deque<Book> bookStack = new ArrayDeque<Book>();
+		Deque<Room> roomStack = new ArrayDeque<Room>();
 		while (rs.next()) {
-			Book book = new Book(null, null, null, null, false);
-			book.setBook_date(rs.getDate("book_date").toString());
-			book.setSin(rs.getString("sin"));
-			book.setCheck_in(rs.getDate("check_in").toString());
-			book.setCheck_out(rs.getDate("check_out").toString());
-			book.setIs_cancelled(rs.getBoolean("is_cancelled"));
-		}
 
-		if (!bookStack.isEmpty()) {
-			Book[] bookArray = (Book[]) bookStack.toArray(new Book[bookStack.size()]);
-			return bookArray;
+			Room room = new Room(1, null, null, 1, 1, null, false);
+			room.setRoom_number(rs.getInt("room_number"));
+			room.setHotel_id(rs.getString("hotel_id"));
+			room.setChain_name(rs.getString("chain_name"));
+			room.setPrice(rs.getFloat("price"));
+			room.setCapacity(rs.getInt("capacity"));
+			room.setView_type(rs.getString("view_type"));
+			room.setIs_extendable(rs.getBoolean("is_extendable"));
+			room.setCheck_in(rs.getDate("check_in").toString());
+			room.setCheck_out(rs.getDate("check_out").toString());
+
+			roomStack.push(room);
+
+		}
+		if (!roomStack.isEmpty()) {
+			Room[] room = (Room[]) roomStack.toArray(new Room[roomStack.size()]);
+			return room;
 		}
 
 		return null;
 
 	}
 
-	// find bookings by hotel
-	public static Rent[] findRentByHotel(Connection conn, String hotel_id) throws SQLException {
+	// find rent by hotel
+	public static Room[] findRentByHotel(Connection conn, String hotel_id) throws SQLException {
 
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		// findind the bookings by hotel_id
-		String sql = "Select * from rent where sin=(select sin from room_rent where hotel_id=?);";
+		String sql = "select room_number,hotel_id,chain_name,price,capacity,view_type, is_extendable, check_in, check_out from room \r\n" + 
+				"natural join room_rent natural join rent \r\n" + 
+				"where check_out > current_date and hotel_id=?";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
 
 		ResultSet rs = pstm.executeQuery();
 
-		Deque<Rent> rentStack = new ArrayDeque<Rent>();
+		Deque<Room> roomStack = new ArrayDeque<Room>();
 		while (rs.next()) {
-			Rent rent = new Rent(null, null, null, null);
-			rent.setRent_date(rs.getDate("rent_date").toString());
-			rent.setSin(rs.getString("sin"));
-			rent.setCheck_in(rs.getDate("check_in").toString());
-			rent.setCheck_out(rs.getDate("check_out").toString());
+
+			Room room = new Room(1, null, null, 1, 1, null, false);
+			room.setRoom_number(rs.getInt("room_number"));
+			room.setHotel_id(rs.getString("hotel_id"));
+			room.setChain_name(rs.getString("chain_name"));
+			room.setPrice(rs.getFloat("price"));
+			room.setCapacity(rs.getInt("capacity"));
+			room.setView_type(rs.getString("view_type"));
+			room.setIs_extendable(rs.getBoolean("is_extendable"));
+			room.setCheck_in(rs.getDate("check_in").toString());
+			room.setCheck_out(rs.getDate("check_out").toString());
+
+			roomStack.push(room);
 
 		}
-
-		if (!rentStack.isEmpty()) {
-			Rent[] rentArray = (Rent[]) rentStack.toArray(new Rent[rentStack.size()]);
-			return rentArray;
+		if (!roomStack.isEmpty()) {
+			Room[] room = (Room[]) roomStack.toArray(new Room[roomStack.size()]);
+			return room;
 		}
 
 		return null;

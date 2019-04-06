@@ -9,6 +9,8 @@ public class Room {
 	private int capacity;
 	private String view_type;
 	private boolean is_extendable;
+	private String check_in;
+	private String check_out;
 
 	public Room(int room_number, String hotel_id, String chain_name, float price, int capacity, String view_type,
 			boolean is_extendable) {
@@ -75,6 +77,22 @@ public class Room {
 
 	public void setIs_extendable(boolean is_extendable) {
 		this.is_extendable = is_extendable;
+	}
+
+	public String getCheck_in() {
+		return check_in;
+	}
+
+	public void setCheck_in(String check_in) {
+		this.check_in = check_in;
+	}
+
+	public String getCheck_out() {
+		return check_out;
+	}
+
+	public void setCheck_out(String check_out) {
+		this.check_out = check_out;
 	}
 
 }
