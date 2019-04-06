@@ -237,6 +237,35 @@ public class DBUtils {
 		}
 		return null;
 	}
+	
+	// find hotel with part of address
+		public static Hotel findHotelWithID(Connection conn, String hotel_id) throws SQLException {
+
+			// Accessing the right search path
+			PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+			path.execute();
+
+			String sql = "SELECT * FROM hotel WHERE hotel_id=?;";
+			// System.out.println(sql);
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setString(1, hotel_id);
+			ResultSet rs = pstm.executeQuery();
+			
+			if (rs.next()) {
+
+				Hotel hotel = new Hotel(null, null, 1, null, null, 1);
+				hotel.setChain_name(rs.getString("chain_name"));
+				hotel.setHotel_id(rs.getString("hotel_id"));
+				hotel.setHotel_address(rs.getString("hotel_address"));
+				hotel.setContact_email_address(rs.getString("contact_email_address"));
+				hotel.setNumber_of_rooms(rs.getInt("number_of_rooms"));
+				hotel.setRating(rs.getFloat("rating"));
+				
+				return hotel;
+			}
+
+			return null;
+		}
 
 	// find rooms with hotel_id
 	public static Room[] findRooms(Connection conn, String hotel_id, String check_in) throws SQLException {
@@ -591,6 +620,37 @@ public class DBUtils {
 
 
 		pstm.executeUpdate();
+
+	}
+	
+	//find bookings by hotel
+	public static Book[] findBookingByHotel(Connection conn, String hotel_id) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		// findind the bookings by hotel_id
+		String sql = "select * from book where sin=(select sin from room_book where hotel_id=?);";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, hotel_id);
+
+
+		ResultSet rs=pstm.executeQuery();
+		
+		Deque<Book> bookStack = new ArrayDeque<Book>();
+		while (rs.next()) {
+			Book book=new Book(null,null,null,null,false);
+			book.setBook_date(rs.getDate("book_date").toString());
+			book.setSin(rs.getString("sin"));
+		}
+
+//		if (!capacityStack.isEmpty()) {
+//			Integer[] i = (Integer[]) capacityStack.toArray(new Integer[capacityStack.size()]);
+//			return i;
+//		}
+
+		return null;
 
 	}
 
