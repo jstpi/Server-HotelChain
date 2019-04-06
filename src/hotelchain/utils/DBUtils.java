@@ -568,6 +568,7 @@ public class DBUtils {
 		ResultSet rs = number.executeQuery();
 		rs.next();
 		int roomNumber = rs.getInt("max");
+		roomNumber++;
 
 		// INSERT room in the DB
 		String sql = "INSERT INTO room (room_number,hotel_id,chain_name,price,capacity,view_type,is_extendable) \r\n"
