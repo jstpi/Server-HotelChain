@@ -1042,7 +1042,7 @@ public class DBUtils {
 		}
 
 		String sqlRent = "select address, chain_name, room_number, check_in, check_out, capacity \r\n"
-				+ "from hotel natural join room natural join room_rent natural join rent natural join customer where sin='987-654-321';";
+				+ "from hotel natural join room natural join room_rent natural join rent natural join customer where sin=?;";
 
 		PreparedStatement pstm2 = conn.prepareStatement(sqlRent);
 		pstm2.setString(1, sin);
