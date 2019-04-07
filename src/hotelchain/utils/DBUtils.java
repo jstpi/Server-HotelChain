@@ -1034,7 +1034,7 @@ public class DBUtils {
 			user.setChain_name(rs.getString("chain_name"));
 			user.setRoom_number(rs.getInt("room_number"));
 			user.setCheck_in(rs.getDate("check_in").toString());
-			user.setCheck_in(rs.getDate("check_out").toString());
+			user.setCheck_out(rs.getDate("check_out").toString());
 			user.setCapacity(rs.getInt("capacity"));
 
 			userStack.push(user);
@@ -1055,7 +1055,7 @@ public class DBUtils {
 			user.setChain_name(rs.getString("chain_name"));
 			user.setRoom_number(rs.getInt("room_number"));
 			user.setCheck_in(rs.getDate("check_in").toString());
-			user.setCheck_in(rs.getDate("check_out").toString());
+			user.setCheck_out(rs.getDate("check_out").toString());
 			user.setCapacity(rs.getInt("capacity"));
 
 			userStack.push(user);
