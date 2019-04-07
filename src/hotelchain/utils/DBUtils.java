@@ -390,7 +390,7 @@ public class DBUtils {
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
-		String sql = "select * from hotel where hotel_id=\r\n" + "(select hotel_id from employee where sin='?');";
+		String sql = "select * from hotel where hotel_id=\r\n" + "(select hotel_id from employee where sin=?);";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, sin);
