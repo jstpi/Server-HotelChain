@@ -18,6 +18,8 @@ import hotelchain.beans.Room;
 import hotelchain.beans.Room_book;
 import hotelchain.beans.Room_rent;
 import hotelchain.beans.UserAccount;
+import hotelchain.beans.UserRoomHistory;
+
 import java.sql.Date;
 
 public class DBUtils {
@@ -946,9 +948,9 @@ public class DBUtils {
 		ResultSet rs = number.executeQuery();
 		rs.next();
 		String roomNumber = rs.getString("max");
-		int num= Integer.parseInt(roomNumber);
+		int num = Integer.parseInt(roomNumber);
 		num++;
-		roomNumber=Integer.toString(num);
+		roomNumber = Integer.toString(num);
 
 		// findind the bookings by hotel_id
 		String sql = "insert into employee (employee_id,hotel_id,chain_name,sin,full_name,address,password,email)"
@@ -1009,6 +1011,63 @@ public class DBUtils {
 
 		pstm.executeUpdate();
 
+	}
+
+	public static UserRoomHistory[] getUserRoomHistory(Connection conn, String sin) throws SQLException {
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		String sqlBook = "select address, chain_name, room_number, check_in, check_out, capacity \r\n"
+				+ "from hotel natural join room natural join room_book natural join book natural join customer where sin=?;";
+
+		PreparedStatement pstm1 = conn.prepareStatement(sqlBook);
+		pstm1.setString(1, sin);
+		ResultSet rs = pstm1.executeQuery();
+
+		Deque<UserRoomHistory> userStack = new ArrayDeque<UserRoomHistory>();
+		while (rs.next()) {
+
+			UserRoomHistory user = new UserRoomHistory(null, null, 1, null, null, true, 1);
+			user.setAddress(rs.getString("address"));
+			user.setChain_name(rs.getString("chain_name"));
+			user.setRoom_number(rs.getInt("room_number"));
+			user.setCheck_in(rs.getDate("check_in").toString());
+			user.setCheck_in(rs.getDate("check_out").toString());
+			user.setCapacity(rs.getInt("capacity"));
+
+			userStack.push(user);
+
+		}
+
+		String sqlRent = "select address, chain_name, room_number, check_in, check_out, capacity \r\n"
+				+ "from hotel natural join room natural join room_rent natural join rent natural join customer where sin='987-654-321';";
+
+		PreparedStatement pstm2 = conn.prepareStatement(sqlRent);
+		pstm2.setString(1, sin);
+		rs = pstm2.executeQuery();
+
+		while (rs.next()) {
+
+			UserRoomHistory user = new UserRoomHistory(null, null, 1, null, null, false, 1);
+			user.setAddress(rs.getString("address"));
+			user.setChain_name(rs.getString("chain_name"));
+			user.setRoom_number(rs.getInt("room_number"));
+			user.setCheck_in(rs.getDate("check_in").toString());
+			user.setCheck_in(rs.getDate("check_out").toString());
+			user.setCapacity(rs.getInt("capacity"));
+
+			userStack.push(user);
+
+		}
+
+		if (!userStack.isEmpty()) {
+			UserRoomHistory[] userArray = (UserRoomHistory[]) userStack.toArray(new UserRoomHistory[userStack.size()]);
+			return userArray;
+		}
+
+		return null;
 	}
 
 }
