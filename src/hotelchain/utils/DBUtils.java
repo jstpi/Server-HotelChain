@@ -301,19 +301,20 @@ public class DBUtils {
 	}
 
 	// find available rooms with hotel_id
-	public static Room[] findRooms(Connection conn, String hotel_id, String check_in) throws SQLException {
+	public static Room[] findRooms(Connection conn, String hotel_id, String check_in, String check_out) throws SQLException {
 
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
 		Date realDate = Date.valueOf(check_in);
+		Date realDate2 =Date.valueOf(check_out);
 		System.out.println(realDate);
 		String sql = "(select * from room where hotel_id=?) Except\r\n"
 				+ "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable"
-				+ " from room Natural join room_book\r\n" + "Natural join book where check_out>'"+realDate+"' and hotel_id=?)\r\n"
+				+ " from room Natural join room_book\r\n" + "Natural join book where check_out>'"+realDate+"' and check_in<'"+realDate2+"' and hotel_id=?)\r\n"
 				+ "Except\r\n" + "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable\r\n"
-				+ " from room \r\n" + "Natural join room_rent\r\n" + "Natural join rent where check_out> '"+realDate+"' \r\n"
+				+ " from room \r\n" + "Natural join room_rent\r\n" + "Natural join rent where check_out> '"+realDate+"' and check_in<'"+realDate2+"' \r\n"
 				+ "and hotel_id=?)";
 		
 		PreparedStatement pstm = conn.prepareStatement(sql);
@@ -1063,7 +1064,7 @@ public class DBUtils {
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
-		String sqlBook = "select address, chain_name, room_number, check_in, check_out, capacity \r\n"
+		String sqlBook = "select hotel_address, chain_name, room_number, check_in, check_out, capacity \r\n"
 				+ "from hotel natural join room natural join room_book natural join book natural join customer where sin=?;";
 
 		PreparedStatement pstm1 = conn.prepareStatement(sqlBook);
@@ -1074,7 +1075,7 @@ public class DBUtils {
 		while (rs.next()) {
 
 			UserRoomHistory user = new UserRoomHistory(null, null, 1, null, null, true, 1);
-			user.setAddress(rs.getString("address"));
+			user.setAddress(rs.getString("hotel_address"));
 			user.setChain_name(rs.getString("chain_name"));
 			user.setRoom_number(rs.getInt("room_number"));
 			user.setCheck_in(rs.getDate("check_in").toString());
