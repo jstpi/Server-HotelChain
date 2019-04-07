@@ -98,7 +98,7 @@ public class RentRoomServlet extends HttpServlet {
 			}
 		}
 		response.setContentType("application/json");
-		String json = new Gson().toJson(true);
+		String json = new Gson().toJson(user);
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(json);
 
