@@ -16,6 +16,7 @@ import hotelchain.beans.Product;
 import hotelchain.beans.Rent;
 import hotelchain.beans.Room;
 import hotelchain.beans.Room_book;
+import hotelchain.beans.Room_rent;
 import hotelchain.beans.UserAccount;
 import java.sql.Date;
 
@@ -36,6 +37,35 @@ public class DBUtils {
 		pstm.setString(1, email);
 		pstm.setString(2, password);
 		// System.out.println(pstm);
+		ResultSet rs = pstm.executeQuery();
+
+		if (rs.next()) {
+			System.out.println("Full Name = " + rs.getString("full_name"));
+			UserAccount user = new UserAccount(null, null, null, null, null, null);
+			user.setSin(rs.getString("sin"));
+			user.setFull_name(rs.getString("full_name"));
+			user.setAddress(rs.getString("address"));
+			user.setDate_registration(rs.getString("date_registration"));
+			user.setPassword(rs.getString("password"));
+			user.setEmail(rs.getString("email"));
+			return user;
+		}
+		return null;
+	}
+	
+	public static UserAccount findUser(Connection conn, String sin) throws SQLException {
+
+		// System.out.println("The account is of type Customer.");
+
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
+
+		// preparing query for the user
+		String sql = "Select * from customer where sin=?";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, sin);
 		ResultSet rs = pstm.executeQuery();
 
 		if (rs.next()) {
@@ -927,5 +957,52 @@ public class DBUtils {
 
 	
 	}
+	
+	// add employee by hotel
+		public static void createRent(Connection conn, Rent rent) throws SQLException {
+
+			// Accessing the right search path
+			PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+			path.execute();
+			
+			Date check_inDate = Date.valueOf(rent.getCheck_in());
+			Date check_outDate = Date.valueOf(rent.getCheck_out());
+
+			// findind the bookings by hotel_id
+			String sql = "insert into rent (rent_date, sin, check_in, check_out)"
+					+ "values(?,?,?,?);";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setDate(1, check_inDate);
+			pstm.setString(2, rent.getSin());
+			pstm.setDate(3, check_inDate);
+			pstm.setDate(4, check_outDate);
+			
+
+			pstm.executeUpdate();
+
+		
+		}
+		
+		// create the room_book in the DB
+		public static void createRoomRent(Connection conn, Room_rent room_rent) throws SQLException {
+
+			// Accessing the right search path
+			PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+			path.execute();
+
+			Date date = Date.valueOf(room_rent.getRent_date());
+
+			// INSERT room book in the DB
+			String sql = "INSERT INTO room_book (Book_date, sin, room_number, hotel_id, chain_name) VALUES(?,?,?,?,?);";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setDate(1, date);
+			pstm.setString(2, room_rent.getSin());
+			pstm.setInt(3, room_rent.getRoom_number());
+			pstm.setString(4, room_rent.getHotel_id());
+			pstm.setString(5, room_rent.getChain_name());
+
+			pstm.executeUpdate();
+
+		}
 
 }
