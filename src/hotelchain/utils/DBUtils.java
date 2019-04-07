@@ -52,7 +52,7 @@ public class DBUtils {
 		}
 		return null;
 	}
-	
+
 	public static UserAccount findUser(Connection conn, String sin) throws SQLException {
 
 		// System.out.println("The account is of type Customer.");
@@ -940,11 +940,21 @@ public class DBUtils {
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
 
+		// Find employee number
+		PreparedStatement number = conn.prepareStatement("select max(employee_id) from Employee where hotel_id=?;");
+		number.setString(1, emp.getHotel_id());
+		ResultSet rs = number.executeQuery();
+		rs.next();
+		String roomNumber = rs.getString("max");
+		int num= Integer.parseInt(roomNumber);
+		num++;
+		roomNumber=Integer.toString(num);
+
 		// findind the bookings by hotel_id
 		String sql = "insert into employee (employee_id,hotel_id,chain_name,sin,full_name,address,password,email)"
 				+ "values(?,?,?,?,?,?,?,?);";
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setString(1, emp.getEmployee_id());
+		pstm.setString(1, roomNumber);
 		pstm.setString(2, emp.getHotel_id());
 		pstm.setString(3, emp.getChain_name());
 		pstm.setString(4, emp.getSin());
@@ -955,54 +965,50 @@ public class DBUtils {
 
 		pstm.executeUpdate();
 
-	
 	}
-	
+
 	// add employee by hotel
-		public static void createRent(Connection conn, Rent rent) throws SQLException {
+	public static void createRent(Connection conn, Rent rent) throws SQLException {
 
-			// Accessing the right search path
-			PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
-			path.execute();
-			
-			Date check_inDate = Date.valueOf(rent.getCheck_in());
-			Date check_outDate = Date.valueOf(rent.getCheck_out());
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
 
-			// findind the bookings by hotel_id
-			String sql = "insert into rent (rent_date, sin, check_in, check_out)"
-					+ "values(?,?,?,?);";
-			PreparedStatement pstm = conn.prepareStatement(sql);
-			pstm.setDate(1, check_inDate);
-			pstm.setString(2, rent.getSin());
-			pstm.setDate(3, check_inDate);
-			pstm.setDate(4, check_outDate);
-			
+		Date check_inDate = Date.valueOf(rent.getCheck_in());
+		Date check_outDate = Date.valueOf(rent.getCheck_out());
 
-			pstm.executeUpdate();
+		// findind the bookings by hotel_id
+		String sql = "insert into rent (rent_date, sin, check_in, check_out)" + "values(?,?,?,?);";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setDate(1, check_inDate);
+		pstm.setString(2, rent.getSin());
+		pstm.setDate(3, check_inDate);
+		pstm.setDate(4, check_outDate);
 
-		
-		}
-		
-		// create the room_book in the DB
-		public static void createRoomRent(Connection conn, Room_rent room_rent) throws SQLException {
+		pstm.executeUpdate();
 
-			// Accessing the right search path
-			PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
-			path.execute();
+	}
 
-			Date date = Date.valueOf(room_rent.getRent_date());
+	// create the room_book in the DB
+	public static void createRoomRent(Connection conn, Room_rent room_rent) throws SQLException {
 
-			// INSERT room book in the DB
-			String sql = "INSERT INTO room_book (Book_date, sin, room_number, hotel_id, chain_name) VALUES(?,?,?,?,?);";
-			PreparedStatement pstm = conn.prepareStatement(sql);
-			pstm.setDate(1, date);
-			pstm.setString(2, room_rent.getSin());
-			pstm.setInt(3, room_rent.getRoom_number());
-			pstm.setString(4, room_rent.getHotel_id());
-			pstm.setString(5, room_rent.getChain_name());
+		// Accessing the right search path
+		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
+		path.execute();
 
-			pstm.executeUpdate();
+		Date date = Date.valueOf(room_rent.getRent_date());
 
-		}
+		// INSERT room book in the DB
+		String sql = "INSERT INTO room_book (Book_date, sin, room_number, hotel_id, chain_name) VALUES(?,?,?,?,?);";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setDate(1, date);
+		pstm.setString(2, room_rent.getSin());
+		pstm.setInt(3, room_rent.getRoom_number());
+		pstm.setString(4, room_rent.getHotel_id());
+		pstm.setString(5, room_rent.getChain_name());
+
+		pstm.executeUpdate();
+
+	}
 
 }
