@@ -993,7 +993,7 @@ public class DBUtils {
 			Date date = Date.valueOf(room_rent.getRent_date());
 
 			// INSERT room book in the DB
-			String sql = "INSERT INTO room_book (Book_date, sin, room_number, hotel_id, chain_name) VALUES(?,?,?,?,?);";
+			String sql = "INSERT INTO room_rent (Rent_date, sin, room_number, hotel_id, chain_name) VALUES(?,?,?,?,?);";
 			PreparedStatement pstm = conn.prepareStatement(sql);
 			pstm.setDate(1, date);
 			pstm.setString(2, room_rent.getSin());
