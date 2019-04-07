@@ -78,7 +78,8 @@ public class UpdateUserServlet extends HttpServlet {
 					} catch (JsonSyntaxException e) {
 						e.printStackTrace();
 					}
-					
+					//System.out.println(user.getPassword());
+					user.setSin(sin);
 					DBUtils.updateCustomer(conn, user);
 					
 					response.setContentType("application/json");
@@ -92,7 +93,7 @@ public class UpdateUserServlet extends HttpServlet {
 					} catch (JsonSyntaxException e) {
 						e.printStackTrace();
 					}
-					
+					employee.setSin(sin);
 					DBUtils.updateEmployee(conn, employee);
 					
 					response.setContentType("application/json");
@@ -106,7 +107,7 @@ public class UpdateUserServlet extends HttpServlet {
 					} catch (JsonSyntaxException e) {
 						e.printStackTrace();
 					}
-					
+					admin.setSin(sin);
 					DBUtils.updateAdmin(conn, admin);
 					
 					response.setContentType("application/json");

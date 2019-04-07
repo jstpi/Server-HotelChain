@@ -70,6 +70,7 @@ public class GetRoomsServlet extends HttpServlet {
 			Connection conn = MyUtils.getStoredConnection(request);
 			try {
 				// Find the hotels in the DB.
+				System.out.println(book.getCheck_in());
 				roomArray = DBUtils.findRooms(conn, room.getHotel_id(), book.getCheck_in());
 
 			} catch (SQLException e) {

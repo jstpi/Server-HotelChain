@@ -308,19 +308,21 @@ public class DBUtils {
 		path.execute();
 
 		Date realDate = Date.valueOf(check_in);
-
+		System.out.println(realDate);
 		String sql = "(select * from room where hotel_id=?) Except\r\n"
 				+ "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable"
-				+ " from room Natural join room_book\r\n" + "Natural join book where check_out>? and hotel_id=?)\r\n"
+				+ " from room Natural join room_book\r\n" + "Natural join book where check_out>'"+realDate+"' and hotel_id=?)\r\n"
 				+ "Except\r\n" + "(select room_number,hotel_id, chain_name,price,capacity,view_type, is_extendable\r\n"
-				+ " from room \r\n" + "Natural join room_rent\r\n" + "Natural join rent where check_out>? \r\n"
+				+ " from room \r\n" + "Natural join room_rent\r\n" + "Natural join rent where check_out> '"+realDate+"' \r\n"
 				+ "and hotel_id=?)";
+		
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, hotel_id);
-		pstm.setDate(2, realDate);
+		//pstm.setDate(2, realDate);
+		pstm.setString(2, hotel_id);
+		//pstm.setDate(4, realDate);
 		pstm.setString(3, hotel_id);
-		pstm.setDate(4, realDate);
-		pstm.setString(5, hotel_id);
+		System.out.println(pstm);
 		ResultSet rs = pstm.executeQuery();
 
 		int i = 0;
@@ -547,10 +549,24 @@ public class DBUtils {
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
-
-		Date date = Date.valueOf(book.getBook_date());
+		
+		String getDate = "select max(book_date)+1 from book where sin=?;";
+		PreparedStatement pstm1 = conn.prepareStatement(getDate);
+		pstm1.setString(1, book.getSin());
+		
+		ResultSet rs=pstm1.executeQuery();
+		rs.next();
+		Date date=rs.getDate("?column?");
+		System.out.println(date);
+		if(date==null) {
+			date=Date.valueOf(book.getBook_date());
+		}
+		
 		Date check_in = Date.valueOf(book.getCheck_in());
 		Date check_out = Date.valueOf(book.getCheck_out());
+		
+		
+		
 		// INSERT book in the DB
 		String sql = "INSERT INTO book (book_date, sin, check_in, check_out, is_cancelled) VALUES(?,?,?,?,?);";
 		PreparedStatement pstm = conn.prepareStatement(sql);
@@ -570,8 +586,15 @@ public class DBUtils {
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
+		
+		String getDate = "select max(book_date) from book where sin=?;";
+		PreparedStatement pstm1 = conn.prepareStatement(getDate);
+		pstm1.setString(1, room_book.getSin());
+		
+		ResultSet rs=pstm1.executeQuery();
+		rs.next();
+		Date date=rs.getDate("max");
 
-		Date date = Date.valueOf(room_book.getBook_date());
 
 		// INSERT room book in the DB
 		String sql = "INSERT INTO room_book (Book_date, sin, room_number, hotel_id, chain_name) VALUES(?,?,?,?,?);";
@@ -829,16 +852,23 @@ public class DBUtils {
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
+		
+		PreparedStatement getPwd = conn.prepareStatement("Select password from customer where sin=?;");
+		getPwd.setString(1, user.getSin());
+		ResultSet rs=getPwd.executeQuery();
+		
+		rs.next();
+		String pwd=rs.getString("password");
 
 		// findind the bookings by hotel_id
 		String sql = "Update customer set full_name=?, address=?, password=?, email=?" + "where sin=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, user.getFull_name());
 		pstm.setString(2, user.getAddress());
-		pstm.setString(3, user.getPassword());
+		pstm.setString(3, pwd);
 		pstm.setString(4, user.getEmail());
 		pstm.setString(5, user.getSin());
-
+		System.out.println(pstm);
 		pstm.executeUpdate();
 
 	}
@@ -848,13 +878,20 @@ public class DBUtils {
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
+		
+		PreparedStatement getPwd = conn.prepareStatement("Select password from employee where sin=?;");
+		getPwd.setString(1, employee.getSin());
+		ResultSet rs=getPwd.executeQuery();
+		
+		rs.next();
+		String pwd=rs.getString("password");
 
 		// findind the bookings by hotel_id
 		String sql = "Update Employee set full_name=?, address=?, password=?, email=?" + "where sin=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, employee.getFull_name());
 		pstm.setString(2, employee.getAddress());
-		pstm.setString(3, employee.getPassword());
+		pstm.setString(3, pwd);
 		pstm.setString(4, employee.getEmail());
 		pstm.setString(5, employee.getSin());
 
@@ -867,12 +904,19 @@ public class DBUtils {
 		// Accessing the right search path
 		PreparedStatement path = conn.prepareStatement("Set search_path='ehotel';");
 		path.execute();
+		
+		PreparedStatement getPwd = conn.prepareStatement("Select password from chain_admin where sin=?;");
+		getPwd.setString(1, admin.getSin());
+		ResultSet rs=getPwd.executeQuery();
+		
+		rs.next();
+		String pwd=rs.getString("password");
 
 		// findind the bookings by hotel_id
 		String sql = "Update chain_admin set full_name=?, password=?, email=?" + "where sin=?;";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, admin.getFull_name());
-		pstm.setString(2, admin.getPassword());
+		pstm.setString(2, pwd);
 		pstm.setString(3, admin.getEmail());
 		pstm.setString(4, admin.getSin());
 
